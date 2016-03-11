@@ -72,6 +72,8 @@ public class YggdrasilShell implements Command, Runnable, ExitCallback, Interrup
         console.addCompletions(commandManager.listCommands());
         console.setInterruptHandler(this);
 
+        console.setBright(true);
+
         commandThread = new Thread(this);
         commandThread.start();
 
@@ -90,8 +92,8 @@ public class YggdrasilShell implements Command, Runnable, ExitCallback, Interrup
             try {
                 String commandLine = console.read(String.format(
                     "%s%s",
-                    ConsoleUtils.color(String.format("%1$s", environment.getEnv().get("USER")), ConsoleColor.CYAN),
-                    ConsoleUtils.color(" ➜ ", (subCommandExitCode == 0) ? ConsoleColor.GREEN : ConsoleColor.RED)
+                    console.format(environment.getEnv().get("USER"), ConsoleColor.CYAN, null, null, true),
+                    console.format(" ➜ ", (subCommandExitCode == 0) ? ConsoleColor.GREEN : ConsoleColor.RED, null, null, true)
                 ));
 
                 CommandLineUtils.CommandLine command = CommandLineUtils.parse(commandLine);

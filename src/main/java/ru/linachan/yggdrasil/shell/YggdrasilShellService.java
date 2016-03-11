@@ -1,7 +1,7 @@
 package ru.linachan.yggdrasil.shell;
 
 
-import org.apache.sshd.server.forward.AcceptAllForwardingFilter;
+import org.apache.sshd.server.forward.RejectAllForwardingFilter;
 import ru.linachan.yggdrasil.auth.YggdrasilAuthUser;
 import ru.linachan.yggdrasil.service.YggdrasilService;
 
@@ -25,6 +25,8 @@ public class YggdrasilShellService extends YggdrasilService {
 
         shellServer.setPort(core.getConfig().getInt("yggdrasil.ssh.port", 41598));
         shellServer.setHost(core.getConfig().getString("yggdrasil.ssh.host", "0.0.0.0"));
+
+        shellServer.getProperties().put(SshServer.IDLE_TIMEOUT, 86400000L);
 
         shellServer.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(
             new File(core.getConfig().getString("yggdrasil.ssh.key", "master.ser"))
@@ -62,11 +64,10 @@ public class YggdrasilShellService extends YggdrasilService {
             return false;
         });
 
-        shellServer.setTcpipForwardingFilter(AcceptAllForwardingFilter.INSTANCE);
+        shellServer.setTcpipForwardingFilter(RejectAllForwardingFilter.INSTANCE);
 
         shellServer.setCommandFactory(new YggdrasilShellCommandFactory(core, commandManager));
         shellServer.setShellFactory(new YggdrasilShellFactory(core, commandManager));
-        shellServer.setTcpipForwarderFactory(new YggdrasilShellTCPIPFactory(core));
 
         try {
             shellServer.start();

@@ -12,6 +12,11 @@ public class ConsoleUtils {
 
     private InterruptHandler interruptHandler;
 
+    private ConsoleColor textColor = null;
+    private ConsoleColor bgColor = null;
+    private ConsoleTextStyle textStyle = null;
+    private boolean isBright = false;
+
     private List<String> autoCompleteList = new ArrayList<>();
 
     public ConsoleUtils(InputStreamReader in, OutputStreamWriter out, OutputStreamWriter err) {
@@ -61,7 +66,7 @@ public class ConsoleUtils {
     public boolean readYesNo(String query) throws IOException {
         while (true) {
             String result = read(String.format(
-                "%1$s (y/N)", query
+                "%1$s (y/N): ", query
             ), false);
 
             switch (result.toLowerCase()) {
@@ -176,35 +181,71 @@ public class ConsoleUtils {
         }
     }
 
-
-    public static String color(String text, ConsoleColor textColor) {
-        return color(text, textColor, null, true);
+    public void setTextColor(ConsoleColor color) {
+        textColor = color;
     }
 
-    public static String color(String text, ConsoleColor textColor, boolean bright) {
-        return color(text, textColor, null, bright);
+    public void setBGColor(ConsoleColor color) {
+        bgColor = color;
     }
 
-    public static String color(String text, ConsoleColor textColor, ConsoleColor bgColor) {
-        return color(text, textColor, bgColor, true);
+    public void setBright(boolean bright) {
+        isBright = bright;
     }
 
-    public static String color(String text, ConsoleColor textColor, ConsoleColor bgColor, boolean bright) {
-        return String.format(
-            "\033[1;%d;%dm%s\033[0m",
-            (bgColor != null) ? bgColor.ordinal() + ((bright) ? 100 : 40) : 49,
-            (textColor != null) ? textColor.ordinal() + ((bright) ? 90 : 30) : 39,
-            text
-        );
+    public void writeLine(String format, Object... args) throws IOException {
+        write(format + "\r\n", args);
     }
 
     public void write(String format, Object... args) throws IOException {
-        outputStream.write(String.format(format, args));
+        outputStream.write(
+            String.format(
+                String.format(
+                    "\033[%d;%d;%dm%s\033[0m",
+                    (textStyle != null) ? textStyle.ordinal() : 0,
+                    (bgColor != null) ? bgColor.ordinal() + ((isBright) ? 100 : 40) : 49,
+                    (textColor != null) ? textColor.ordinal() + ((isBright) ? 90 : 30) : 39,
+                    format
+                ), args
+            )
+        );
         outputStream.flush();
     }
 
+    public String format(String format, Object... args) {
+        return String.format(
+            String.format(
+                "\033[%d;%d;%dm%s\033[0m",
+                (textStyle != null) ? textStyle.ordinal() : 0,
+                (bgColor != null) ? bgColor.ordinal() + ((isBright) ? 100 : 40) : 49,
+                (textColor != null) ? textColor.ordinal() + ((isBright) ? 90 : 30) : 39,
+                format
+            ), args
+        );
+    }
+
+    public String format(String format, ConsoleColor textColor, ConsoleColor bgColor, ConsoleTextStyle textStyle, boolean isBright) {
+        return String.format(
+            "\033[%d;%d;%dm%s\033[0m",
+            (textStyle != null) ? textStyle.ordinal() : 0,
+            (bgColor != null) ? bgColor.ordinal() + ((isBright) ? 100 : 40) : 49,
+            (textColor != null) ? textColor.ordinal() + ((isBright) ? 90 : 30) : 39,
+            format
+        );
+    }
+
     public void error(String format, Object... args) throws IOException {
-        errorStream.write(String.format(format, args));
+        errorStream.write(
+            String.format(
+                String.format(
+                    "\033[%d;%d;%dm%s\033[0m",
+                    (textStyle != null) ? textStyle.ordinal() : 0,
+                    (bgColor != null) ? bgColor.ordinal() + ((isBright) ? 100 : 40) : 49,
+                    (textColor != null) ? textColor.ordinal() + ((isBright) ? 90 : 30) : 39,
+                    format
+                ), args
+            )
+        );
         errorStream.flush();
     }
 }
