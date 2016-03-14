@@ -67,11 +67,9 @@ public class YggdrasilPluginManager extends YggdrasilGenericManager<YggdrasilPlu
 
     @Override
     public void shutdown() {
-        for (YggdrasilPlugin plugin: managedObjects.values()) {
-            if (plugin != null) {
-                plugin.shutdown();
-            }
-        }
+        managedObjects.values().stream()
+            .filter(plugin -> plugin != null)
+            .forEach(YggdrasilPlugin::shutdown);
     }
 
     private void autoStart() {

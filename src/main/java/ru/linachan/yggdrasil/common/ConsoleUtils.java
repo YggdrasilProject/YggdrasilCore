@@ -3,6 +3,7 @@ package ru.linachan.yggdrasil.common;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ConsoleUtils {
 
@@ -44,15 +45,9 @@ public class ConsoleUtils {
     }
 
     private List<String> autoComplete(String inputString) {
-        List<String> completeList = new ArrayList<>();
-
-        for (String completeName: autoCompleteList) {
-            if (completeName.startsWith(inputString)) {
-                completeList.add(completeName);
-            }
-        }
-
-        return completeList;
+        return autoCompleteList.stream()
+            .filter(completeName -> completeName.startsWith(inputString))
+            .collect(Collectors.toList());
     }
 
     public String read(String query) throws IOException {

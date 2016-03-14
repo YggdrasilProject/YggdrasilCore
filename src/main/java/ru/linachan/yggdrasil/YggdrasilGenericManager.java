@@ -2,8 +2,6 @@ package ru.linachan.yggdrasil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.linachan.yggdrasil.event.YggdrasilEvent;
-import ru.linachan.yggdrasil.event.YggdrasilEventListener;
 
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -27,19 +25,16 @@ public abstract class YggdrasilGenericManager<T> {
 
         onInit();
 
-        core.getEventSystem().registerListener(new YggdrasilEventListener() {
-            @Override
-            public void onEvent(YggdrasilEvent event) {
-                switch (event.getEventType()) {
-                    case "packageEnabled":
-                        onPackageEnabled(event.getEventData().get("packageName"));
-                        break;
-                    case "packageDisabled":
-                        onPackageDisabled(event.getEventData().get("packageName"));
-                        break;
-                    default:
-                        break;
-                }
+        core.getEventSystem().registerListener(event -> {
+            switch (event.getEventType()) {
+                case "packageEnabled":
+                    onPackageEnabled((String) event.getEventData().get("packageName"));
+                    break;
+                case "packageDisabled":
+                    onPackageDisabled((String) event.getEventData().get("packageName"));
+                    break;
+                default:
+                    break;
             }
         });
 
@@ -49,43 +44,44 @@ public abstract class YggdrasilGenericManager<T> {
         return ((Class) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean isAbstract(Class<? extends T> targetClass) {
         return targetClass != null && Modifier.isAbstract(targetClass.getModifiers());
     }
 
     protected void discoverAll() {
-        for (Class<? extends T> discoveredObject: core.discoverAll(getGenericTypeClass())) {
-            if (!managedObjects.containsKey(discoveredObject)&&!isAbstract(discoveredObject)) {
+        core.discoverAll(getGenericTypeClass()).stream()
+            .filter(discoveredObject -> !managedObjects.containsKey(discoveredObject) && !isAbstract(discoveredObject))
+            .forEach(discoveredObject -> {
                 lock();
                 managedObjects.put(discoveredObject, null);
                 unLock();
 
                 onDiscover(discoveredObject);
-            }
-        }
+            });
     }
 
     protected void discoverEnabled() {
-        for (Class<? extends T> discoveredObject: core.discoverEnabled(getGenericTypeClass())) {
-            if (!managedObjects.containsKey(discoveredObject)&&!isAbstract(discoveredObject)) {
+        core.discoverEnabled(getGenericTypeClass()).stream()
+            .filter(discoveredObject -> !managedObjects.containsKey(discoveredObject) && !isAbstract(discoveredObject))
+            .forEach(discoveredObject -> {
                 lock();
                 managedObjects.put(discoveredObject, null);
                 unLock();
 
                 onDiscover(discoveredObject);
-            }
-        }
+            });
     }
 
     protected void cleanup() {
         List<Class<? extends T>> objectsToRemove = new ArrayList<>();
-        for (Class<? extends T> object: managedObjects.keySet()) {
-            if (!core.isPackageEnabled(object.getPackage().getName().split("\\.")[2])) {
+        managedObjects.keySet().stream()
+            .filter(object -> !core.isPackageEnabled(object.getPackage().getName().split("\\.")[2]))
+            .forEach(object -> {
                 onCleanup(object);
 
                 objectsToRemove.add(object);
-            }
-        }
+            });
 
         lock();
         for (Class<? extends T> objectToRemove: objectsToRemove) {

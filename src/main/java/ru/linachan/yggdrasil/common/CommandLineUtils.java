@@ -7,6 +7,7 @@ import java.util.Map;
 
 public class CommandLineUtils {
 
+    @SuppressWarnings("ConstantConditions")
     public static CommandLine parse(String commandLine) {
         String command = null;
         String keyword = null;
@@ -31,12 +32,12 @@ public class CommandLineUtils {
         for (char chr: commandLine.toCharArray()) {
             switch (chr) {
                 case '"':
-                    doubleQuotes = escapeCharacter ? doubleQuotes : !doubleQuotes;
+                    doubleQuotes = escapeCharacter == doubleQuotes;
                     currentString.append(escapeCharacter ? "\"" : "");
                     escapeCharacter = false;
                     break;
                 case '\'':
-                    singleQuotes = escapeCharacter ? singleQuotes : !singleQuotes;
+                    singleQuotes = escapeCharacter == singleQuotes;
                     escapeCharacter = false;
                     break;
                 case '\\':

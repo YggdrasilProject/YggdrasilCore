@@ -71,24 +71,6 @@ public class YggdrasilStorage {
         storageWriter.close();
     }
 
-    public YggdrasilStorageFile createStorage(String storageName, File storageFile, boolean reInitialize) throws IOException {
-        if (storageFile.exists()) {
-            boolean isValidStorage = validateStorage(storageFile);
-
-            if (!isValidStorage||reInitialize) {
-                initializeStorage(storageFile);
-            }
-        } else {
-            initializeStorage(storageFile);
-        }
-
-        YggdrasilStorageFile storageObject = new YggdrasilStorageFile(storageFile);
-
-        storageInfo.put(storageName, storageObject);
-
-        return storageObject;
-    }
-
     public YggdrasilStorageFile createStorage(String storageName, File storageFile, byte[] storageKey, boolean reInitialize) throws IOException {
         if (storageFile.exists()) {
             boolean isValidStorage = validateStorage(storageFile);
@@ -100,7 +82,13 @@ public class YggdrasilStorage {
             initializeStorage(storageFile);
         }
 
-        YggdrasilStorageFile storageObject = new YggdrasilStorageFile(storageFile, storageKey);
+        YggdrasilStorageFile storageObject;
+
+        if (storageKey != null) {
+            storageObject = new YggdrasilStorageFile(storageFile, storageKey);
+        } else {
+            storageObject = new YggdrasilStorageFile(storageFile);
+        }
 
         storageInfo.put(storageName, storageObject);
 

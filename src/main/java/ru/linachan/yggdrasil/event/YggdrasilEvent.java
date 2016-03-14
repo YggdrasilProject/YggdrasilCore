@@ -5,9 +5,9 @@ import java.util.Map;
 public class YggdrasilEvent {
 
     private String eventType;
-    private Map<String, String> eventData;
+    private Map<String, Object> eventData;
 
-    public YggdrasilEvent(String type, Map<String, String> data) {
+    public YggdrasilEvent(String type, Map<String, Object> data) {
         eventType = type;
         eventData = data;
     }
@@ -16,7 +16,7 @@ public class YggdrasilEvent {
         return eventType;
     }
 
-    public Map<String, String> getEventData() {
+    public Map<String, Object> getEventData() {
         return eventData;
     }
 }

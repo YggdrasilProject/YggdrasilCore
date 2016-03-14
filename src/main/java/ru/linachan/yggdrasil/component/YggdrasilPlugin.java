@@ -6,6 +6,7 @@ import ru.linachan.yggdrasil.YggdrasilCore;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public abstract class YggdrasilPlugin {
 
@@ -23,10 +24,9 @@ public abstract class YggdrasilPlugin {
         checkDependencies();
         onInit();
 
-        List<String> dependencyList = new ArrayList<>();
-        for (Class<? extends YggdrasilPlugin> dependency : dependencies) {
-            dependencyList.add(dependency.getSimpleName());
-        }
+        List<String> dependencyList = dependencies.stream()
+            .map(Class::getSimpleName)
+            .collect(Collectors.toList());
 
         logger.info(this.getClass().getSimpleName() + ": " + "initialized");
         logger.info(this.getClass().getSimpleName() + " -> " + dependencyList.toString());
@@ -39,11 +39,9 @@ public abstract class YggdrasilPlugin {
     }
 
     private void checkDependencies() {
-        for (Class<? extends YggdrasilPlugin> dependency : dependencies) {
-            if (!core.getManager(YggdrasilPluginManager.class).isEnabled(dependency)) {
-                core.getManager(YggdrasilPluginManager.class).enable(dependency);
-            }
-        }
+        dependencies.stream()
+            .filter(dependency -> !core.getManager(YggdrasilPluginManager.class).isEnabled(dependency))
+            .forEach(dependency -> core.getManager(YggdrasilPluginManager.class).enable(dependency));
     }
 
     protected abstract void setUpDependencies();

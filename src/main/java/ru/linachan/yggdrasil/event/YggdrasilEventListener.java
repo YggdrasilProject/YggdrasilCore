@@ -1,7 +1,7 @@
 package ru.linachan.yggdrasil.event;
 
-public abstract class YggdrasilEventListener {
+public interface YggdrasilEventListener {
 
-    public abstract void onEvent(YggdrasilEvent event);
+    void onEvent(YggdrasilEvent event);
 
 }

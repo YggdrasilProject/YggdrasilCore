@@ -3,6 +3,7 @@ package ru.linachan.yggdrasil;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import com.google.common.base.Joiner;
 import org.reflections.Reflections;
@@ -73,7 +74,7 @@ public class YggdrasilCore {
         if (!enabledPackages.contains(packageName)) {
             enabledPackages.add(packageName);
 
-            Map<String, String> data = new HashMap<>();
+            Map<String, Object> data = new HashMap<>();
             data.put("packageName", packageName);
 
             events.sendEvent(new YggdrasilEvent(
@@ -88,7 +89,7 @@ public class YggdrasilCore {
         if (enabledPackages.contains(packageName)) {
             enabledPackages.remove(packageName);
 
-            Map<String, String> data = new HashMap<>();
+            Map<String, Object> data = new HashMap<>();
             data.put("packageName", packageName);
 
             events.sendEvent(new YggdrasilEvent(
@@ -110,15 +111,9 @@ public class YggdrasilCore {
     }
 
     public <T> Set<Class<? extends T>> discoverEnabled(Class<T> parentClass) {
-        Set<Class<? extends T>> enabledClasses = new HashSet<>();
-
-        for (Class<? extends T> discoveredClass : discoveryHelper.getSubTypesOf(parentClass)) {
-            if (enabledPackages.contains(discoveredClass.getPackage().getName().split("\\.")[2])) {
-                enabledClasses.add(discoveredClass);
-            }
-        }
-
-        return enabledClasses;
+        return discoveryHelper.getSubTypesOf(parentClass).stream()
+            .filter(discoveredClass -> enabledPackages.contains(discoveredClass.getPackage().getName().split("\\.")[2]))
+            .collect(Collectors.toSet());
     }
 
     private void registerShutdownHook() {
@@ -129,16 +124,14 @@ public class YggdrasilCore {
         return config;
     }
 
-    public void mainLoop() throws InterruptedException, IOException {
+    public void mainLoop() throws InterruptedException {
         while (isRunning) {
             Thread.sleep(1000);
         }
 
         logger.info("Yggdrasil main loop finished. Waiting another services to finish...");
 
-        for (YggdrasilGenericManager manager: genericManagers.values()) {
-            manager.shutdown();
-        }
+        genericManagers.values().forEach(YggdrasilGenericManager::shutdown);
 
         storage.shutdown();
         scheduler.shutdown();

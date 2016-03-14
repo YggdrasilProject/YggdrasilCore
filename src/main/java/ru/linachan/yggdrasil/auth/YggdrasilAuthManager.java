@@ -25,12 +25,12 @@ public class YggdrasilAuthManager {
 
         YggdrasilAuthBackendManager backendManager = core.getManager(YggdrasilAuthBackendManager.class);
 
-        for (Class<? extends YggdrasilAuthBackend> authBackendClass: backendManager.list().keySet()) {
-            if (authBackendClass.getCanonicalName().equals(backendClass)) {
+        backendManager.list().keySet().stream()
+            .filter(authBackendClass -> authBackendClass.getCanonicalName().equals(backendClass))
+            .forEach(authBackendClass -> {
                 backendManager.enable(authBackendClass);
                 authBackend = authBackendClass;
-            }
-        }
+            });
 
         if (authBackend == null) {
             backendManager.enable(LocalAuthBackend.class);
