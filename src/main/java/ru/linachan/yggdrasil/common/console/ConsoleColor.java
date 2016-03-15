@@ -1,4 +1,4 @@
-package ru.linachan.yggdrasil.common;
+package ru.linachan.yggdrasil.common.console;
 
 public enum ConsoleColor {
     BLACK, RED, GREEN, YELLOW,

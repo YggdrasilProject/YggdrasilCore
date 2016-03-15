@@ -19,8 +19,7 @@ public class HelpCommand extends YggdrasilShellCommand {
                 String commandDescription = (String) commandEntry.getKey().getField("commandDescription").get(null);
 
                 if (commandName != null) {
-                    output.write(String.format("%-20s %s\r\n", commandName, (commandDescription != null) ? commandDescription : ""));
-                    output.flush();
+                    console.writeLine(String.format("%-20s %s", commandName, (commandDescription != null) ? commandDescription : ""));
                 }
             } catch (NoSuchFieldException | IllegalAccessException e) {
                 logger.error("Unable to get command info", e);

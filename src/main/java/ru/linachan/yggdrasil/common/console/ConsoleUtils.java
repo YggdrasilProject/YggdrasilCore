@@ -1,8 +1,11 @@
-package ru.linachan.yggdrasil.common;
+package ru.linachan.yggdrasil.common.console;
+
+import com.google.common.base.Joiner;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ConsoleUtils {
@@ -176,6 +179,20 @@ public class ConsoleUtils {
         }
     }
 
+    private String generateBorder(List<Integer> fields) {
+        List<String> borders = new ArrayList<>();
+
+        for (Integer field: fields) {
+            String border = "";
+            for (int i = 0; i < field + 2; i++) {
+                border += "-";
+            }
+            borders.add(border);
+        }
+
+        return "+" + Joiner.on("+").join(borders) + "+";
+    }
+
     public void setTextColor(ConsoleColor color) {
         textColor = color;
     }
@@ -186,6 +203,48 @@ public class ConsoleUtils {
 
     public void setBright(boolean bright) {
         isBright = bright;
+    }
+
+    public void writeMap(Map<?, ?> mapObject) throws IOException {
+        writeMap(mapObject, null, null);
+    }
+
+    public void writeMap(Map<?, ?> mapObject, String keyHeader, String valueHeader) throws IOException {
+        final int[] maxKeyLength = { (keyHeader != null) ? keyHeader.length() : 0 };
+        final int[] maxValueLength = { (valueHeader != null) ? valueHeader.length() : 0 };
+
+        if (mapObject != null) {
+            mapObject.keySet().stream()
+                .filter(key -> key != null)
+                .filter(key -> String.valueOf(key).length() > maxKeyLength[0])
+                .forEach(key -> maxKeyLength[0] = String.valueOf(key).length());
+
+            mapObject.values().stream()
+                .filter(value -> value != null)
+                .filter(value -> String.valueOf(value).length() > maxValueLength[0])
+                .forEach(value -> maxValueLength[0] = String.valueOf(value).length());
+
+            List<Integer> fields = new ArrayList<>();
+
+            fields.add(maxKeyLength[0]);
+            fields.add(maxValueLength[0]);
+
+            String formatString = String.format("| %%-%ds | %%-%ds |", maxKeyLength[0], maxValueLength[0]);
+            String borderString = generateBorder(fields);
+
+            writeLine(borderString);
+
+            if ((keyHeader != null) && (valueHeader != null)) {
+                writeLine(formatString, keyHeader, valueHeader);
+                writeLine(borderString);
+            }
+
+            for (Object key: mapObject.keySet()) {
+                writeLine(formatString, key, mapObject.get(key));
+            }
+
+            writeLine(borderString);
+        }
     }
 
     public void writeLine(String format, Object... args) throws IOException {

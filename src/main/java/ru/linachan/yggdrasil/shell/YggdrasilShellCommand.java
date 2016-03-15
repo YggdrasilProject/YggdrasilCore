@@ -6,7 +6,8 @@ import org.apache.sshd.server.ExitCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.linachan.yggdrasil.YggdrasilCore;
-import ru.linachan.yggdrasil.common.CommandLineUtils;
+import ru.linachan.yggdrasil.common.console.CommandLineUtils;
+import ru.linachan.yggdrasil.common.console.ConsoleUtils;
 
 import java.io.*;
 import java.util.List;
@@ -19,6 +20,8 @@ public abstract class YggdrasilShellCommand implements Command, Runnable {
     protected InputStreamReader input;
     protected OutputStreamWriter output;
     protected OutputStreamWriter error;
+
+    protected ConsoleUtils console;
 
     private ExitCallback exitCallback;
     private Environment environment;
@@ -91,6 +94,7 @@ public abstract class YggdrasilShellCommand implements Command, Runnable {
     @Override
     public void run() {
         try {
+            console = new ConsoleUtils(input, output, error);
             execute(command, args, kwargs);
         } catch (IOException e) {
             logger.error("Unable to execute command", e);

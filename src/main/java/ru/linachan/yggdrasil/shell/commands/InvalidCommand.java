@@ -10,8 +10,7 @@ public class InvalidCommand extends YggdrasilShellCommand {
 
     @Override
     protected void execute(String command, List<String> args, Map<String, String> kwargs) throws IOException {
-        output.write("Invalid command\r\n");
-        output.flush();
+        console.writeLine("Invalid command");
 
         exit(1);
     }

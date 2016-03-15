@@ -5,7 +5,7 @@ import org.apache.sshd.server.CommandFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.linachan.yggdrasil.YggdrasilCore;
-import ru.linachan.yggdrasil.common.CommandLineUtils;
+import ru.linachan.yggdrasil.common.console.CommandLineUtils;
 import ru.linachan.yggdrasil.shell.commands.InvalidCommand;
 import ru.linachan.yggdrasil.shell.commands.UnknownCommand;
 

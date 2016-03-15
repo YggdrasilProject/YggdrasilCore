@@ -1,4 +1,4 @@
-package ru.linachan.yggdrasil.common;
+package ru.linachan.yggdrasil.common.console;
 
 public interface InterruptHandler {
 

@@ -10,10 +10,7 @@ public class UnknownCommand extends YggdrasilShellCommand {
 
     @Override
     protected void execute(String command, List<String> args, Map<String, String> kwargs) throws IOException {
-        output.write(String.format(
-            "%s: command not found\r\n", command
-        ));
-        output.flush();
+        console.writeLine("%s: command not found", command);
 
         exit(1);
     }

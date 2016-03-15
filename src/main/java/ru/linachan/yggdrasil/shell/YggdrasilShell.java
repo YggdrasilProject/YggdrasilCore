@@ -5,14 +5,14 @@ import org.apache.sshd.server.Environment;
 import org.apache.sshd.server.ExitCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.linachan.yggdrasil.common.ConsoleColor;
-import ru.linachan.yggdrasil.common.InterruptHandler;
+import ru.linachan.yggdrasil.common.console.ConsoleColor;
+import ru.linachan.yggdrasil.common.console.InterruptHandler;
 import ru.linachan.yggdrasil.shell.commands.EmptyCommand;
 import ru.linachan.yggdrasil.shell.commands.InvalidCommand;
 import ru.linachan.yggdrasil.shell.commands.UnknownCommand;
 import ru.linachan.yggdrasil.YggdrasilCore;
-import ru.linachan.yggdrasil.common.CommandLineUtils;
-import ru.linachan.yggdrasil.common.ConsoleUtils;
+import ru.linachan.yggdrasil.common.console.CommandLineUtils;
+import ru.linachan.yggdrasil.common.console.ConsoleUtils;
 
 import java.io.*;
 

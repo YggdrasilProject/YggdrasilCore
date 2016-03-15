@@ -13,21 +13,7 @@ public class GetEnvCommand extends YggdrasilShellCommand {
 
     @Override
     protected void execute(String command, List<String> args, Map<String, String> kwargs) throws IOException {
-        int maximalLength = 0;
-
-        Map<String, String> env = getEnvironment().getEnv();
-
-        for (String variableName: env.keySet()) {
-            maximalLength = (variableName.length() > maximalLength) ? variableName.length() : maximalLength;
-        }
-
-        for (String variableName: env.keySet()) {
-            output.write(String.format(
-                String.format("%%%ds : %%s\r\n", maximalLength),
-                variableName, env.get(variableName)
-            ));
-        }
-        output.flush();
+        console.writeMap(getEnvironment().getEnv(), "variable", "value");
 
         exit(0);
     }

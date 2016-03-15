@@ -1,9 +1,9 @@
 package ru.linachan.yggdrasil.shell.commands;
 
 import ru.linachan.yggdrasil.auth.YggdrasilAuthUser;
-import ru.linachan.yggdrasil.common.ConsoleColor;
-import ru.linachan.yggdrasil.common.ConsoleUtils;
-import ru.linachan.yggdrasil.common.InterruptHandler;
+import ru.linachan.yggdrasil.common.console.ConsoleColor;
+import ru.linachan.yggdrasil.common.console.ConsoleUtils;
+import ru.linachan.yggdrasil.common.console.InterruptHandler;
 import ru.linachan.yggdrasil.shell.YggdrasilShellCommand;
 
 import java.io.IOException;
@@ -19,8 +19,6 @@ public class PasswordCommand extends YggdrasilShellCommand implements InterruptH
 
     @Override
     protected void execute(String command, List<String> strings, Map<String, String> args) throws IOException {
-        ConsoleUtils console = new ConsoleUtils(input, output, error);
-
         console.setBright(true);
 
         while (isChanging) {

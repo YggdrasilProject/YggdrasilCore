@@ -1,4 +1,4 @@
-package ru.linachan.yggdrasil.common;
+package ru.linachan.yggdrasil.common.console;
 
 import java.util.ArrayList;
 import java.util.HashMap;
