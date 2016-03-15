@@ -12,7 +12,7 @@ public class ExitCommand extends YggdrasilShellCommand {
     public static String commandDescription = "Closes current session";
 
     @Override
-    protected void execute(String command, List<String> strings, Map<String, String> args) throws IOException {
+    protected void execute(String command, List<String> args, Map<String, String> kwargs) throws IOException {
         exit(0, "logout");
     }
 }

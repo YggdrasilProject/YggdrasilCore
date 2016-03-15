@@ -18,7 +18,7 @@ public class PasswordCommand extends YggdrasilShellCommand implements InterruptH
     private boolean isChanging = true;
 
     @Override
-    protected void execute(String command, List<String> strings, Map<String, String> args) throws IOException {
+    protected void execute(String command, List<String> args, Map<String, String> kwargs) throws IOException {
         console.setBright(true);
 
         while (isChanging) {
@@ -35,8 +35,6 @@ public class PasswordCommand extends YggdrasilShellCommand implements InterruptH
                     console.setTextColor(ConsoleColor.GREEN);
                     console.writeLine("Password changed");
                     console.setTextColor(null);
-
-                    exit(0);
                 } else {
                     console.setTextColor(ConsoleColor.RED);
                     console.writeLine("Canceled");

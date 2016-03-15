@@ -14,6 +14,5 @@ public class SetEnvCommand extends YggdrasilShellCommand {
     @Override
     protected void execute(String command, List<String> args, Map<String, String> kwargs) throws IOException {
         getEnvironment().getEnv().putAll(kwargs);
-        exit(0);
     }
 }

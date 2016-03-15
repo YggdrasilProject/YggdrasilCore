@@ -16,7 +16,6 @@ public class ShutdownCommand extends YggdrasilShellCommand {
         console.writeLine("Shutting down Yggdrasil...\r\n");
 
         core.shutdown();
-        exit(0);
     }
 
 }

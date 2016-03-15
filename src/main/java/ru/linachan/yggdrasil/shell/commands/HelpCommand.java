@@ -25,7 +25,5 @@ public class HelpCommand extends YggdrasilShellCommand {
                 logger.error("Unable to get command info", e);
             }
         }
-
-        exit(0);
     }
 }

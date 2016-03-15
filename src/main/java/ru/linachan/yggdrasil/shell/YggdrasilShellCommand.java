@@ -33,6 +33,7 @@ public abstract class YggdrasilShellCommand implements Command, Runnable {
     private Map<String, String> kwargs;
 
     private boolean isRunning = true;
+    private boolean exited = false;
 
     protected YggdrasilShellCommandManager commandManager;
 
@@ -100,17 +101,25 @@ public abstract class YggdrasilShellCommand implements Command, Runnable {
             logger.error("Unable to execute command", e);
             exit(1);
         }
+
+        if (!exited) {
+            exited = true;
+            exit(0);
+        }
+
         isRunning = false;
     }
 
-    protected abstract void execute(String command, List<String> strings, Map<String, String> args) throws IOException;
+    protected abstract void execute(String command, List<String> args, Map<String, String> kwargs) throws IOException;
 
     protected void exit(Integer exitCode) {
         exitCallback.onExit(exitCode);
+        exited = true;
     }
 
     protected void exit(Integer exitCode, String exitMessage) {
         exitCallback.onExit(exitCode, exitMessage);
+        exited = true;
     }
 
     protected Environment getEnvironment() {
