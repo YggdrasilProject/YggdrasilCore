@@ -5,10 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Semaphore;
 
 @SuppressWarnings("unchecked")
@@ -108,6 +105,18 @@ public abstract class YggdrasilGenericManager<T> {
         if (isEnabled(objectClass)) {
             return objectClass.cast(managedObjects.get(objectClass));
         }
+        return null;
+    }
+
+    public Class<? extends T> getClassByName(String objectClassName) {
+        Optional<Class<? extends T>> objectClassOptional =  managedObjects.keySet().stream()
+            .filter(objectClass -> objectClass.getSimpleName().equals(objectClassName))
+            .findFirst();
+
+        if (objectClassOptional.isPresent()) {
+            return objectClassOptional.get();
+        }
+
         return null;
     }
 

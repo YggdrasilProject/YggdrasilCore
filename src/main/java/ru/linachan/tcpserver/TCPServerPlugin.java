@@ -24,12 +24,16 @@ public class TCPServerPlugin extends YggdrasilPlugin {
 
         services = new HashMap<>();
 
+        core.registerManager(TCPServiceManager.class);
+
         connectionManager = new TCPConnectionManager(core, threadGroup, 256);
         connectionManager.start();
     }
 
     @Override
     protected void onShutdown() {
+        core.shutdownManager(TCPServiceManager.class);
+
         connectionManager.shutdown();
         threadGroup.interrupt();
     }

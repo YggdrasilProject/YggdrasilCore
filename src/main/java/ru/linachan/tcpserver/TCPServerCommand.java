@@ -1,6 +1,5 @@
 package ru.linachan.tcpserver;
 
-import ru.linachan.yggdrasil.YggdrasilCore;
 import ru.linachan.yggdrasil.common.console.InterruptHandler;
 import ru.linachan.yggdrasil.component.YggdrasilPluginManager;
 import ru.linachan.yggdrasil.shell.YggdrasilShellCommand;
@@ -29,16 +28,21 @@ public class TCPServerCommand extends YggdrasilShellCommand implements Interrupt
                     String serverClass = kwargs.getOrDefault("serverClass", "SimpleTCPServer");
                     Integer serverPort = Integer.valueOf(kwargs.getOrDefault("port", "9999"));
 
-                    core.discoverEnabled(TCPService.class).stream()
-                        .filter(service -> service.getSimpleName().equals(serverClass))
-                        .forEach(service -> {
+                    Class<? extends TCPService> serviceClass = core.getManager(TCPServiceManager.class)
+                        .getClassByName(serverClass);
+
+                    if (serviceClass != null) {
                         try {
-                            tcpServerPlugin.startTCPService(serverPort, service.newInstance());
+                            tcpServerPlugin.startTCPService(serverPort, serviceClass.newInstance());
                         } catch (InstantiationException | IllegalAccessException e) {
-                            logger.error("Unable to instantiate service: {}", e.getMessage());
+                            logger.error("Unable to instantiate TCPService: {}" + e.getMessage());
+                            console.writeLine("Unable to start server on port: %d", serverPort);
                             exit(1);
                         }
-                    });
+                    } else {
+                        console.writeLine("Unable to find TCPService %s", serverClass);
+                        exit(1);
+                    }
                     break;
                 case "stop":
                     if (args.size() > 1) {

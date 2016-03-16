@@ -171,13 +171,20 @@ public class YggdrasilCore {
         return authManager;
     }
 
-    private <T extends YggdrasilGenericManager> void registerManager(Class<T> manager) {
+    public <T extends YggdrasilGenericManager> void registerManager(Class<T> manager) {
         try {
             YggdrasilGenericManager managerInstance = manager.newInstance();
             genericManagers.put(manager, managerInstance);
             managerInstance.setUpManager(this);
         } catch (InstantiationException | IllegalAccessException e) {
             logger.error("Unable to instantiate manager", e);
+        }
+    }
+
+    public <T extends YggdrasilGenericManager> void shutdownManager(Class<T> manager) {
+        if (genericManagers.containsKey(manager)) {
+            genericManagers.get(manager).shutdown();
+            genericManagers.remove(manager);
         }
     }
 
