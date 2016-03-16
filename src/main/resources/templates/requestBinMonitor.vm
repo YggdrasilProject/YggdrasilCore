@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RequestBin</title>
+</head>
+<body>
+    <table width="100%">
+        <thead>
+            <tr>
+                <th>Method</th>
+                <th>URL</th>
+                <th>Remote Address</th>
+                <th>Headers</th>
+                <th>Cookies</th>
+            </tr>
+        </thead>
+        <tbody>
+            #foreach($request in $requests)
+            <tr>
+                <td>$request.getMethod()</td>
+                <td>$request.getUri()</td>
+                <td>$request.getRemoteAddress().getHostAddress()</td>
+                <td>
+                    <ul>
+                    #foreach($header in $request.getHeaders().entrySet())
+                        <li><b>$header.getKey():</b> $header.getValue()</li>
+                    #end
+                    </ul>
+                </td>
+                <td>
+                    <ul>
+                        #foreach($cookie in $request.getCookies().entrySet())
+                            <li><b>$cookie.getKey():</b> $cookie.getValue()</li>
+                        #end
+                    </ul>
+                </td>
+            </tr>
+            #end
+        </tbody>
+    </table>
+</body>
+</html>

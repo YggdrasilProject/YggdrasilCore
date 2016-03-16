@@ -3,9 +3,12 @@ package ru.linachan.webservice;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.runtime.RuntimeConstants;
+import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 import org.json.simple.JSONObject;
 
 import java.io.*;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -102,6 +105,10 @@ public class WebServiceResponse {
 
     public void renderTemplate(String templateName, VelocityContext context) {
         VelocityEngine templateRenderer = new VelocityEngine();
+
+        templateRenderer.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath");
+        templateRenderer.setProperty("classpath.resource.loader.class", ClasspathResourceLoader.class.getName());
+
         templateRenderer.init();
 
         Template template = templateRenderer.getTemplate(templateName);

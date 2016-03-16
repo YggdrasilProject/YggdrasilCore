@@ -29,7 +29,7 @@ public class TCPConnection extends Thread {
             InputStream in = clientConnection.getInputStream();
             OutputStream out = clientConnection.getOutputStream();
 
-            service.handleConnection(core, in, out);
+            service.handleConnection(core, in, out, clientConnection.getInetAddress());
 
             clientConnection.close();
         } catch (IOException e) {

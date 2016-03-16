@@ -11,6 +11,7 @@ import ru.linachan.webservice.utils.InputReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
 import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,6 +35,7 @@ public class WebServiceRequest {
     private final String method;
     private final String version;
     private final String uri;
+    private final InetAddress remoteAddress;
 
     private Map<String, String> headers;
     private Map<String, String> cookies;
@@ -42,7 +44,7 @@ public class WebServiceRequest {
 
     private static Logger logger = LoggerFactory.getLogger(WebServiceRequest.class);
 
-    public static WebServiceRequest readFromSocket(InputStream in) throws IOException {
+    public static WebServiceRequest readFromSocket(InputStream in, InetAddress clientAddress) throws IOException {
         InputReader requestReader = new InputReader(in);
 
         String startingString = requestReader.readLine();
@@ -52,7 +54,8 @@ public class WebServiceRequest {
                 WebServiceRequest request = new WebServiceRequest(
                     startingLine.group("method"),
                     startingLine.group("uri"),
-                    startingLine.group("version")
+                    startingLine.group("version"),
+                    clientAddress
                 );
 
                 while (true) {
@@ -89,10 +92,11 @@ public class WebServiceRequest {
         return null;
     }
 
-    private WebServiceRequest(String httpMethod, String requestUri, String httpVersion) {
+    private WebServiceRequest(String httpMethod, String requestUri, String httpVersion, InetAddress clientAddress) {
         method = httpMethod;
         uri = requestUri;
         version = httpVersion;
+        remoteAddress = clientAddress;
 
         headers = new HashMap<>();
         cookies = new HashMap<>();
@@ -122,6 +126,10 @@ public class WebServiceRequest {
         return uri;
     }
 
+    public InetAddress getRemoteAddress() {
+        return remoteAddress;
+    }
+
     public String getUri() {
         if (uri.contains("?")) {
             return uri.split("\\?")[0];
@@ -137,6 +145,14 @@ public class WebServiceRequest {
         return cookies.containsKey(cookie) ? cookies.get(cookie) : null;
     }
 
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
+
+    public Map<String, String> getCookies() {
+        return cookies;
+    }
+
     public JSONObject getJSONData() throws ParseException {
         JSONParser parser = new JSONParser();
         if (rawData != null) {
@@ -150,14 +166,7 @@ public class WebServiceRequest {
 
         if (uri.contains("?")) {
             String rawUriParams = URLDecoder.decode(uri.split("\\?")[1], "UTF-8");
-            for (String rawRequestParam : rawUriParams.split("&")) {
-                if (rawRequestParam.contains("=")) {
-                    String[] requestParam = rawRequestParam.split("=");
-                    uriParams.put(requestParam[0], requestParam[1]);
-                } else {
-                    uriParams.put(rawRequestParam, null);
-                }
-            }
+            uriParams = parseQueryString(rawUriParams);
         }
 
         return uriParams;
@@ -168,17 +177,25 @@ public class WebServiceRequest {
 
         if (method.equals("POST")||method.equals("PUT")||method.equals("PATCH")) {
             String rawRequestParams = URLDecoder.decode(new String(rawData), "UTF-8");
-            for (String rawRequestParam : rawRequestParams.split("&")) {
-                if (rawRequestParam.contains("=")) {
-                    String[] requestParam = rawRequestParam.split("=");
-                    requestParams.put(requestParam[0], requestParam[1]);
-                } else {
-                    requestParams.put(rawRequestParam, null);
-                }
-            }
+            requestParams = parseQueryString(rawRequestParams);
         }
 
         return requestParams;
+    }
+
+    private Map<String, String> parseQueryString(String queryString) {
+        Map<String, String> queryStringParams = new HashMap<>();
+
+        for (String rawQueryParam : queryString.split("&")) {
+            if (rawQueryParam.contains("=")) {
+                String[] requestParam = rawQueryParam.split("=");
+                queryStringParams.put(requestParam[0], requestParam[1]);
+            } else {
+                queryStringParams.put(rawQueryParam, null);
+            }
+        }
+
+        return queryStringParams;
     }
 
     public String toString() {

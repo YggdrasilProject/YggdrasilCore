@@ -20,6 +20,7 @@ import ru.linachan.yggdrasil.component.YggdrasilPluginManager;
 import ru.linachan.yggdrasil.event.YggdrasilEvent;
 import ru.linachan.yggdrasil.event.YggdrasilEventSystem;
 import ru.linachan.yggdrasil.notification.YggdrasilNotificationManager;
+import ru.linachan.yggdrasil.queue.YggdrasilQueue;
 import ru.linachan.yggdrasil.scheduler.YggdrasilScheduler;
 import ru.linachan.yggdrasil.service.YggdrasilServiceManager;
 import ru.linachan.yggdrasil.storage.YggdrasilStorage;
@@ -38,6 +39,7 @@ public class YggdrasilCore {
     private final YggdrasilAuthManager authManager;
 
     private final Map<Class<? extends YggdrasilGenericManager>, YggdrasilGenericManager> genericManagers;
+    private final Map<String, YggdrasilQueue> queueMap;
 
     private final Logger logger = LoggerFactory.getLogger(YggdrasilCore.class);
 
@@ -54,10 +56,12 @@ public class YggdrasilCore {
 
         enabledPackages.add("yggdrasil");
 
+        genericManagers = new HashMap<>();
+        queueMap = new HashMap<>();
+
         events = new YggdrasilEventSystem();
         scheduler = new YggdrasilScheduler();
         storage = new YggdrasilStorage();
-        genericManagers = new HashMap<>();
 
         registerManager(YggdrasilAuthBackendManager.class);
         authManager = new YggdrasilAuthManager(this);
@@ -131,7 +135,9 @@ public class YggdrasilCore {
 
         logger.info("Yggdrasil main loop finished. Waiting another services to finish...");
 
-        genericManagers.values().forEach(YggdrasilGenericManager::shutdown);
+        genericManagers.values().stream()
+            .collect(Collectors.toList()).stream()
+            .forEach(YggdrasilGenericManager::shutdown);
 
         storage.shutdown();
         scheduler.shutdown();
@@ -194,6 +200,19 @@ public class YggdrasilCore {
         }
 
         return null;
+    }
+
+    public <T> boolean createQueue(Class<T> queueType, String queueName) {
+        if (!queueMap.containsKey(queueName)) {
+            logger.info("Creating queue: [{}] {}", queueType.getSimpleName(), queueName);
+            queueMap.put(queueName, new YggdrasilQueue<T>());
+            return true;
+        }
+        return false;
+    }
+
+    public YggdrasilQueue getQueue(String queueName) {
+        return queueMap.getOrDefault(queueName, null);
     }
 
     public static void main(String[] args) throws InterruptedException, IOException {

@@ -1,5 +1,9 @@
 package ru.linachan.tcpserver;
 
+import ru.linachan.webservice.WebService;
+import ru.linachan.webservice.WebServiceRequest;
+import ru.linachan.webservice.utils.RequestBin;
+import ru.linachan.webservice.utils.RequestBinMonitor;
 import ru.linachan.yggdrasil.common.console.InterruptHandler;
 import ru.linachan.yggdrasil.component.YggdrasilPluginManager;
 import ru.linachan.yggdrasil.shell.YggdrasilShellCommand;
@@ -11,7 +15,7 @@ import java.util.Map;
 public class TCPServerCommand extends YggdrasilShellCommand implements InterruptHandler {
 
     public static String commandName = "server";
-    public static String commandDescription = "Manage TCP server instances";
+    public static String commandDescription = "Manage TCPService instances";
 
     @Override
     protected void execute(String command, List<String> args, Map<String, String> kwargs) throws IOException {
@@ -25,7 +29,7 @@ public class TCPServerCommand extends YggdrasilShellCommand implements Interrupt
                     );
                     break;
                 case "start":
-                    String serverClass = kwargs.getOrDefault("serverClass", "SimpleTCPServer");
+                    String serverClass = kwargs.getOrDefault("serverClass", "WebService");
                     Integer serverPort = Integer.valueOf(kwargs.getOrDefault("port", "9999"));
 
                     Class<? extends TCPService> serviceClass = core.getManager(TCPServiceManager.class)
@@ -33,7 +37,15 @@ public class TCPServerCommand extends YggdrasilShellCommand implements Interrupt
 
                     if (serviceClass != null) {
                         try {
-                            tcpServerPlugin.startTCPService(serverPort, serviceClass.newInstance());
+                            TCPService serviceInstance = serviceClass.newInstance();
+
+                            if (serviceClass.equals(WebService.class)) {
+                                core.createQueue(WebServiceRequest.class, "requestBin");
+                                ((WebService) serviceInstance).addRoute("^/monitor/$", RequestBinMonitor.class);
+                                ((WebService) serviceInstance).addRoute("^(.*?)$", RequestBin.class);
+                            }
+
+                            tcpServerPlugin.startTCPService(serverPort, serviceInstance);
                         } catch (InstantiationException | IllegalAccessException e) {
                             logger.error("Unable to instantiate TCPService: {}" + e.getMessage());
                             console.writeLine("Unable to start server on port: %d", serverPort);
