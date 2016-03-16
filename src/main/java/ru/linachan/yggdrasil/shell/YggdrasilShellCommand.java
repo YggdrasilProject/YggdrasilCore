@@ -8,12 +8,13 @@ import org.slf4j.LoggerFactory;
 import ru.linachan.yggdrasil.YggdrasilCore;
 import ru.linachan.yggdrasil.common.console.CommandLineUtils;
 import ru.linachan.yggdrasil.common.console.ConsoleUtils;
+import ru.linachan.yggdrasil.common.console.InterruptHandler;
 
 import java.io.*;
 import java.util.List;
 import java.util.Map;
 
-public abstract class YggdrasilShellCommand implements Command, Runnable {
+public abstract class YggdrasilShellCommand implements Command, Runnable, InterruptHandler {
 
     protected YggdrasilCore core;
 
@@ -89,6 +90,7 @@ public abstract class YggdrasilShellCommand implements Command, Runnable {
     @Override
     public void destroy() {
         isRunning = false;
+        onInterrupt();
         commandThread.interrupt();
     }
 
@@ -111,6 +113,7 @@ public abstract class YggdrasilShellCommand implements Command, Runnable {
     }
 
     protected abstract void execute(String command, List<String> args, Map<String, String> kwargs) throws IOException;
+    protected abstract void onInterrupt();
 
     protected void exit(Integer exitCode) {
         exitCallback.onExit(exitCode);
@@ -128,5 +131,20 @@ public abstract class YggdrasilShellCommand implements Command, Runnable {
 
     protected boolean isRunning() {
         return isRunning;
+    }
+
+    @Override
+    public void onEOTEvent() {
+        destroy();
+    }
+
+    @Override
+    public void onETXEvent() {
+        destroy();
+    }
+
+    @Override
+    public void onSUBEvent() {
+        destroy();
     }
 }

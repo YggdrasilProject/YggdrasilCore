@@ -33,6 +33,7 @@ public class YggdrasilShell implements Command, Runnable, ExitCallback, Interrup
     private Thread commandThread;
     private boolean isRunning = true;
 
+    private YggdrasilShellCommand subCommand;
     private boolean subCommandIsRunning = false;
     private Integer subCommandExitCode = 0;
 
@@ -83,6 +84,9 @@ public class YggdrasilShell implements Command, Runnable, ExitCallback, Interrup
     @Override
     public void destroy() {
         isRunning = false;
+        if (subCommand != null) {
+            subCommand.destroy();
+        }
         commandThread.interrupt();
     }
 
@@ -98,25 +102,25 @@ public class YggdrasilShell implements Command, Runnable, ExitCallback, Interrup
 
                 CommandLineUtils.CommandLine command = CommandLineUtils.parse(commandLine);
 
-                YggdrasilShellCommand shellCommand = routeCommand(command.getCmd());
-                shellCommand.setUpCommand(core, commandManager, command);
+                subCommand = routeCommand(command.getCmd());
+                subCommand.setUpCommand(core, commandManager, command);
 
-                shellCommand.setExitCallback(this);
+                subCommand.setExitCallback(this);
 
-                shellCommand.setInputStream(input);
-                shellCommand.setOutputStream(output);
-                shellCommand.setErrorStream(error);
+                subCommand.setInputStream(input);
+                subCommand.setOutputStream(output);
+                subCommand.setErrorStream(error);
 
                 subCommandIsRunning = true;
 
-                shellCommand.start(environment);
+                subCommand.start(environment);
 
                 try {
-                    while (subCommandIsRunning||shellCommand.isRunning()) {
+                    while (subCommandIsRunning||subCommand.isRunning()) {
                         Thread.sleep(10);
                     }
 
-                    shellCommand.destroy();
+                    subCommand.destroy();
                 } catch (InterruptedException ignored) {}
 
                 output.flush();

@@ -17,4 +17,7 @@ public class TestCommand extends YggdrasilShellCommand {
         console.writeLine("Keyword Arguments:");
         console.writeMap(kwargs);
     }
+
+    @Override
+    protected void onInterrupt() {}
 }

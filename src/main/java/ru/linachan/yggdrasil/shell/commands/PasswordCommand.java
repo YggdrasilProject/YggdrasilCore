@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-public class PasswordCommand extends YggdrasilShellCommand implements InterruptHandler {
+public class PasswordCommand extends YggdrasilShellCommand {
 
     public static String commandName = "passwd";
     public static String commandDescription = "Change current user password";
@@ -53,20 +53,7 @@ public class PasswordCommand extends YggdrasilShellCommand implements InterruptH
     }
 
     @Override
-    public void onEOTEvent() {
+    protected void onInterrupt() {
         isChanging = false;
-        exit(1);
-    }
-
-    @Override
-    public void onETXEvent() {
-        isChanging = false;
-        exit(1);
-    }
-
-    @Override
-    public void onSUBEvent() {
-        isChanging = false;
-        exit(1);
     }
 }

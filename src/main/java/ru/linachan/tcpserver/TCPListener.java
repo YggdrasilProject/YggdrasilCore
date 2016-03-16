@@ -31,6 +31,7 @@ public class TCPListener extends Thread {
 
         serviceSocket = new ServerSocket(listenPort);
         serviceSocket.setSoTimeout(2000);
+        serviceSocket.setReuseAddress(true);
     }
 
     public void gracefullyShutdown() {
@@ -52,5 +53,9 @@ public class TCPListener extends Thread {
                 logger.error("Unable to handle client connection", e);
             }
         }
+    }
+
+    public TCPService getService() {
+        return service;
     }
 }

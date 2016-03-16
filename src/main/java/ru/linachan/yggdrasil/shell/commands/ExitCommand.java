@@ -15,4 +15,7 @@ public class ExitCommand extends YggdrasilShellCommand {
     protected void execute(String command, List<String> args, Map<String, String> kwargs) throws IOException {
         exit(0, "logout");
     }
+
+    @Override
+    protected void onInterrupt() {}
 }

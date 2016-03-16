@@ -14,4 +14,7 @@ public class UnknownCommand extends YggdrasilShellCommand {
 
         exit(1);
     }
+
+    @Override
+    protected void onInterrupt() {}
 }

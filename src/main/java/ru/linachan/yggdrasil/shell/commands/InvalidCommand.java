@@ -15,4 +15,7 @@ public class InvalidCommand extends YggdrasilShellCommand {
         exit(1);
     }
 
+    @Override
+    protected void onInterrupt() {}
+
 }

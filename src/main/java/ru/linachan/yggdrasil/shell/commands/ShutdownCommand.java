@@ -18,4 +18,7 @@ public class ShutdownCommand extends YggdrasilShellCommand {
         core.shutdown();
     }
 
+    @Override
+    protected void onInterrupt() {}
+
 }

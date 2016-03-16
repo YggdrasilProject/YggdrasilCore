@@ -26,4 +26,7 @@ public class HelpCommand extends YggdrasilShellCommand {
             }
         }
     }
+
+    @Override
+    protected void onInterrupt() {}
 }

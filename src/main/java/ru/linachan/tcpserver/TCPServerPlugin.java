@@ -60,4 +60,13 @@ public class TCPServerPlugin extends YggdrasilPlugin {
             services.remove(servicePort);
         }
     }
+
+    public Map<Integer, String> listTCPServices() {
+        Map<Integer, String> serviceMap = new HashMap<>();
+
+        services.entrySet().stream()
+            .forEach(service -> serviceMap.put(service.getKey(), service.getValue().getService().getClass().getSimpleName()));
+
+        return serviceMap;
+    }
 }
