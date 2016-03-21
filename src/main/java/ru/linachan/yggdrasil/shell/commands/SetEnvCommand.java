@@ -13,6 +13,11 @@ public class SetEnvCommand extends YggdrasilShellCommand {
 
     @Override
     protected void execute(String command, List<String> args, Map<String, String> kwargs) throws IOException {
+        if (kwargs.containsKey("USER")) {
+            kwargs.remove("USER");
+            console.writeLine("USER variable cannot be changed");
+        }
+
         getEnvironment().getEnv().putAll(kwargs);
     }
 

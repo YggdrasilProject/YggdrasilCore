@@ -1,5 +1,8 @@
 package ru.linachan.yggdrasil;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,12 +14,16 @@ import java.util.regex.Pattern;
 public class YggdrasilConfig {
 
     private Map<String, String> configData;
+    private static Logger logger = LoggerFactory.getLogger(YggdrasilConfig.class);
 
     private static final Pattern sectionPattern = Pattern.compile(
-            "^\\s*\\[(?<section>[^\\]]+)\\]\\s*$"
+        "^\\s*\\[(?<section>[^\\]]+)\\]\\s*$"
     );
     private static final Pattern configPattern = Pattern.compile(
-            "^\\s*(?<key>[^#\\s]+)\\s*=\\s*(?<value>([^#]+)|('[^']+')|(\"[^\"]+\"))\\s*$"
+        "^\\s*(?<key>[^#\\s]+)\\s*=\\s*(?<value>([^#\'\"]+)|('[^']+')|(\"[^\"]+\"))\\s*(?<comment>#\\s*(.*?))?$"
+    );
+    private static final Pattern commentPattern = Pattern.compile(
+        "^\\s*(#\\s*(?<comment>.*?))$"
     );
 
     private YggdrasilConfig(Map<String, String> config) {
@@ -31,9 +38,11 @@ public class YggdrasilConfig {
         String configLine;
         String sectionName = "DEFAULT";
 
+        int lineNumber = 1;
         while ((configLine = configReader.readLine()) != null) {
             Matcher sectionMatcher = sectionPattern.matcher(configLine);
             Matcher configMatcher = configPattern.matcher(configLine);
+            Matcher commentMatcher = commentPattern.matcher(configLine);
 
             if (sectionMatcher.matches()) {
                 sectionName = sectionMatcher.group("section");
@@ -42,7 +51,11 @@ public class YggdrasilConfig {
                 String keyValue = configMatcher.group("value");
 
                 config.put(sectionName.toLowerCase() + "." + keyName.toLowerCase(), keyValue);
+            } else if (!commentMatcher.matches()) {
+                logger.warn("Invalid configuration found on {}:{}", configFile.getName(), lineNumber);
             }
+
+            lineNumber++;
         }
 
         return new YggdrasilConfig(config);

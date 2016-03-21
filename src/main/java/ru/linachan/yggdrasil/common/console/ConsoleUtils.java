@@ -53,6 +53,10 @@ public class ConsoleUtils {
             .collect(Collectors.toList());
     }
 
+    public String readLine() throws IOException {
+        return (new BufferedReader(inputStream)).readLine();
+    }
+
     public String read(String query) throws IOException {
         return read(query, false);
     }

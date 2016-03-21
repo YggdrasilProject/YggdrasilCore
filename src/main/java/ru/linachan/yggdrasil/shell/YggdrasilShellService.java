@@ -10,13 +10,16 @@ import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 
 public class YggdrasilShellService extends YggdrasilService {
 
     private SshServer shellServer;
 
     @Override
+    @SuppressWarnings("unchecked")
     protected void onInit() {
         YggdrasilShellCommandManager commandManager = new YggdrasilShellCommandManager();
         commandManager.setUpManager(core);
@@ -36,10 +39,22 @@ public class YggdrasilShellService extends YggdrasilService {
             YggdrasilAuthUser authUser = core.getAuthManager().getUser(userName);
 
             if (authUser != null) {
-                return new String(Base64.getEncoder().encode(publicKey.getEncoded())).equals(authUser.getAttribute("publicKey"));
+                String publicKeyString = new String(Base64.getEncoder().encode(publicKey.getEncoded()));
+
+                for (String publicKeyData: ((List<String>) authUser.getAttribute("publicKey"))) {
+                    if (publicKeyString.equals(publicKeyData)) {
+                        return true;
+                    }
+                }
+
+                authUser.setAttribute("tmpPublicKey", publicKeyString);
             } else if (core.getConfig().getString("yggdrasil.admin.user", "yggdrasil").equals(userName)) {
                 authUser = core.getAuthManager().registerUser(userName);
-                authUser.setAttribute("publicKey", new String(Base64.getEncoder().encode(publicKey.getEncoded())));
+
+                List<String> publicKeyList = new ArrayList<>();
+                publicKeyList.add(new String(Base64.getEncoder().encode(publicKey.getEncoded())));
+                authUser.setAttribute("publicKey", publicKeyList);
+
                 core.getAuthManager().updateUser(authUser);
 
                 return true;

@@ -7,7 +7,7 @@ import java.util.Map;
 public class YggdrasilAuthUser implements Serializable {
 
     private String userName;
-    private Map<String, String> attributes;
+    private Map<String, Object> attributes;
 
     public YggdrasilAuthUser(String authUserName) {
         userName = authUserName;
@@ -18,11 +18,11 @@ public class YggdrasilAuthUser implements Serializable {
         return userName;
     }
 
-    public String getAttribute(String attribute) {
+    public Object getAttribute(String attribute) {
         return attributes.containsKey(attribute) ? attributes.get(attribute) : null;
     }
 
-    public void setAttribute(String attribute, String value) {
+    public void setAttribute(String attribute, Object value) {
         attributes.put(attribute, value);
     }
 }
