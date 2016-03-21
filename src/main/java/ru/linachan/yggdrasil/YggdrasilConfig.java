@@ -51,7 +51,7 @@ public class YggdrasilConfig {
                 String keyValue = configMatcher.group("value");
 
                 config.put(sectionName.toLowerCase() + "." + keyName.toLowerCase(), keyValue);
-            } else if (!commentMatcher.matches()) {
+            } else if (!commentMatcher.matches()&&(configLine.length() > 0)) {
                 logger.warn("Invalid configuration found on {}:{}", configFile.getName(), lineNumber);
             }
 
