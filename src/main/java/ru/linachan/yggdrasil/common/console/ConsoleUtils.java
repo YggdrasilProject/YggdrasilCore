@@ -4,6 +4,7 @@ import com.google.common.base.Joiner;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -250,6 +251,38 @@ public class ConsoleUtils {
             writeLine(borderString);
         }
     }
+
+    public void writeTable(List<Map<String, String>> table, List<String> headers) throws IOException {
+        if ((table != null)&&(headers != null)) {
+            Map<String, Integer> fieldMap = new HashMap<>();
+            headers.stream().forEach(header -> {
+                fieldMap.put(header, header.length());
+                table.stream()
+                    .filter(row -> row.containsKey(header))
+                    .filter(row -> String.valueOf(row.get(header)).length() > fieldMap.get(header))
+                    .forEach(row -> fieldMap.replace(header, String.valueOf(row.get(header)).length()));
+            });
+
+            List<Integer> fields = new ArrayList<>();
+            headers.stream().forEach(header -> fields.add(fieldMap.get(header)));
+
+            String formatString = "| %-" + Joiner.on("s | %-").join(fields) + "s |";
+            String borderString = generateBorder(fields);
+
+            writeLine(borderString);
+            writeLine(formatString, headers.toArray());
+            writeLine(borderString);
+
+            for(Map<String, String> row: table) {
+                List<String> rowData = new ArrayList<>();
+                headers.stream().forEach(header -> rowData.add(row.getOrDefault(header, "")));
+                writeLine(formatString, rowData.toArray());
+            }
+
+            writeLine(borderString);
+        }
+    }
+
 
     public void writeLine(String format, Object... args) throws IOException {
         write(format + "\r\n", args);
