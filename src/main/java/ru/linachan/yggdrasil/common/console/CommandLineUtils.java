@@ -89,6 +89,16 @@ public class CommandLineUtils {
                         }
                     }
                     break;
+                case '=':
+                    if (keywordArgument) {
+                        keyword = currentString.toString();
+                        currentString = new StringBuilder();
+                        keywordArgument = false;
+                        keywordValue = true;
+                    } else {
+                        currentString.append('=');
+                    }
+                    break;
                 case '\0':
                     if (commandArgument) {
                         command = currentString.toString();
