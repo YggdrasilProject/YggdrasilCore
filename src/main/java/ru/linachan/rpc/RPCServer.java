@@ -1,13 +1,13 @@
 package ru.linachan.rpc;
 
-import com.rabbitmq.client.AMQP;
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.QueueingConsumer;
+import com.rabbitmq.client.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class RPCServer implements Runnable {
 
@@ -16,24 +16,34 @@ public class RPCServer implements Runnable {
     private QueueingConsumer consumer;
 
     private RPCService service;
+    private UUID queue;
+
+    private List<String[]> bounds = new ArrayList<>();
 
     private Thread serverThread;
     private boolean isRunning = true;
 
     private static Logger logger = LoggerFactory.getLogger(RPCServer.class);
 
-    public RPCServer(Connection rpcConnection, String rpcQueue, RPCService rpcService) throws IOException {
+    public RPCServer(Connection rpcConnection, RPCService rpcService) throws IOException {
         connection = rpcConnection;
         channel = connection.createChannel();
 
         service = rpcService;
+        queue = UUID.randomUUID();
 
-        channel.queueDeclare(rpcQueue, false, false, false, null);
-
+        channel.queueDeclare(queue.toString(), false, false, false, null);
         channel.basicQos(1);
 
         consumer = new QueueingConsumer(channel);
-        channel.basicConsume(rpcQueue, false, consumer);
+        channel.basicConsume(queue.toString(), false, consumer);
+    }
+
+    public void bind(String rpcExchange, String rpcKey) throws IOException {
+        channel.exchangeDeclare(rpcExchange, "fanout");
+        channel.queueBind(queue.toString(), rpcExchange, rpcKey);
+
+        bounds.add(new String[] {rpcExchange, rpcKey});
     }
 
     public void start() {
@@ -62,13 +72,19 @@ public class RPCServer implements Runnable {
                 channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
             } catch (IOException e) {
                 logger.error("Unable to process RPC call: {}", e.getMessage());
-            } catch (InterruptedException ignored) {}
+            } catch (ShutdownSignalException | InterruptedException ignored) {}
         }
     }
 
     public void shutdown() throws IOException {
         isRunning = false;
-        serverThread.interrupt();
-        connection.close();
+        try {
+            for (String[] bound: bounds) {
+                channel.queueUnbind(queue.toString(), bound[0], bound[1]);
+            }
+
+            serverThread.interrupt();
+            connection.close();
+        } catch(AlreadyClosedException ignored) {}
     }
 }

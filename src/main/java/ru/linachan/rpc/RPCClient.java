@@ -13,44 +13,40 @@ public class RPCClient implements Runnable {
 
     private Connection connection;
     private Channel channel;
-    private String requestQueueName;
     private String replyQueueName;
     private QueueingConsumer consumer;
     private Boolean isRunning = true;
-
-    private Thread clientThread;
 
     private Map<String, RPCCallback> callbackMap = new HashMap<>();
 
     private static Logger logger = LoggerFactory.getLogger(RPCClient.class);
 
-    public RPCClient(Connection rpcConnection, String rpcQueue) throws IOException {
+    public RPCClient(Connection rpcConnection) throws IOException {
         connection = rpcConnection;
         channel = connection.createChannel();
 
-        requestQueueName = rpcQueue;
         replyQueueName = channel.queueDeclare().getQueue();
 
         consumer = new QueueingConsumer(channel);
         channel.basicConsume(replyQueueName, true, consumer);
     }
 
-    public void call(String message, RPCCallback callback) throws IOException, InterruptedException {
+    public void call(String exchange, String key, String message, RPCCallback callback) throws IOException, InterruptedException {
         String corrId = UUID.randomUUID().toString();
 
         AMQP.BasicProperties props = new AMQP.BasicProperties
-            .Builder()
-            .correlationId(corrId)
-            .replyTo(replyQueueName)
-            .build();
+                .Builder()
+                .correlationId(corrId)
+                .replyTo(replyQueueName)
+                .build();
 
-        channel.basicPublish("", requestQueueName, props, message.getBytes());
+        channel.basicPublish(exchange, key, props, message.getBytes());
 
         callbackMap.put(corrId, callback);
     }
 
     public void start() {
-        clientThread = new Thread(this);
+        Thread clientThread = new Thread(this);
         clientThread.start();
     }
 
@@ -72,7 +68,9 @@ public class RPCClient implements Runnable {
     }
 
     public void shutdown() throws IOException {
-        connection.close();
         isRunning = false;
+        try {
+            connection.close();
+        } catch(AlreadyClosedException ignored) {}
     }
 }

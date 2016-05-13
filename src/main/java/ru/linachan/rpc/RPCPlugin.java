@@ -53,11 +53,11 @@ public class RPCPlugin extends YggdrasilPlugin {
         return rpcConnection;
     }
 
-    public RPCServer getRPCServer(String rpcQueue, RPCService rpcService) throws IOException, TimeoutException {
-        return new RPCServer(newConnection(), rpcQueue, rpcService);
+    public RPCServer getRPCServer(RPCService rpcService) throws IOException, TimeoutException {
+        return new RPCServer(newConnection(), rpcService);
     }
 
-    public RPCClient getRPCClient(String rpcQueue) throws IOException, TimeoutException {
-        return new RPCClient(newConnection(), rpcQueue);
+    public RPCClient getRPCClient() throws IOException, TimeoutException {
+        return new RPCClient(newConnection());
     }
 }
