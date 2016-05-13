@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import ru.linachan.yggdrasil.auth.YggdrasilAuthBackendManager;
 import ru.linachan.yggdrasil.auth.YggdrasilAuthManager;
 import ru.linachan.yggdrasil.common.console.CommandLineUtils;
-import ru.linachan.yggdrasil.component.YggdrasilPluginManager;
+import ru.linachan.yggdrasil.plugin.YggdrasilPluginManager;
 
 import ru.linachan.yggdrasil.event.YggdrasilEvent;
 import ru.linachan.yggdrasil.event.YggdrasilEventSystem;

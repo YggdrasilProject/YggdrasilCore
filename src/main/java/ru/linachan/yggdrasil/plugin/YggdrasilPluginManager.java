@@ -1,9 +1,12 @@
-package ru.linachan.yggdrasil.component;
+package ru.linachan.yggdrasil.plugin;
 
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.linachan.yggdrasil.YggdrasilGenericManager;
+import ru.linachan.yggdrasil.plugin.helpers.AutoStart;
+import ru.linachan.yggdrasil.plugin.helpers.Dependencies;
+import ru.linachan.yggdrasil.plugin.helpers.DependsOn;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,13 +25,8 @@ public class YggdrasilPluginManager extends YggdrasilGenericManager<YggdrasilPlu
     @Override
     protected void onDiscover(Class<? extends YggdrasilPlugin> discoveredObject) {
         logger.info("Plugin discovered: {}", discoveredObject.getSimpleName());
-        try {
-            Boolean autoStart = (Boolean) discoveredObject.getField("autoStart").get(false);
-            if (autoStart) {
-                autoStartQueue.add(discoveredObject);
-            }
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            logger.error("Unable to read plugin config", e);
+        if (discoveredObject.isAnnotationPresent(AutoStart.class)) {
+            autoStartQueue.add(discoveredObject);
         }
     }
 
@@ -40,12 +38,24 @@ public class YggdrasilPluginManager extends YggdrasilGenericManager<YggdrasilPlu
     @Override
     protected void onEnable(Class<? extends YggdrasilPlugin> enabledObject) {
         logger.info("Plugin enabled: {}", enabledObject.getSimpleName());
+
+        checkDependencies(enabledObject);
+
         try {
             YggdrasilPlugin pluginInstance = enabledObject.newInstance();
             pluginInstance.onPluginInit(core);
             put(enabledObject, pluginInstance);
         } catch (InstantiationException | IllegalAccessException e) {
             logger.error("Unable to instantiate plugin");
+        }
+    }
+
+    private void checkDependencies(Class<? extends YggdrasilPlugin> plugin) {
+        for (DependsOn dependency : plugin.getAnnotationsByType(DependsOn.class)) {
+            logger.info("{} -> {}", plugin.getSimpleName(), dependency.value().getSimpleName());
+            if (!isEnabled(dependency.value())) {
+                enable(dependency.value());
+            }
         }
     }
 

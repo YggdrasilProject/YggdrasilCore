@@ -1,9 +1,6 @@
 package ru.linachan.rpc;
 
-import com.rabbitmq.client.AMQP;
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.QueueingConsumer;
+import com.rabbitmq.client.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +17,8 @@ public class RPCClient implements Runnable {
     private String replyQueueName;
     private QueueingConsumer consumer;
     private Boolean isRunning = true;
+
+    private Thread clientThread;
 
     private Map<String, RPCCallback> callbackMap = new HashMap<>();
 
@@ -50,6 +49,11 @@ public class RPCClient implements Runnable {
         callbackMap.put(corrId, callback);
     }
 
+    public void start() {
+        clientThread = new Thread(this);
+        clientThread.start();
+    }
+
     @Override
     public void run() {
         while (isRunning) {
@@ -58,6 +62,9 @@ public class RPCClient implements Runnable {
                 if (callbackMap.containsKey(delivery.getProperties().getCorrelationId())) {
                     callbackMap.get(delivery.getProperties().getCorrelationId()).callback(new String(delivery.getBody()));
                 }
+            } catch (ShutdownSignalException e) {
+                isRunning = false;
+                break;
             } catch (InterruptedException e) {
                 logger.error("Unable to handle RPC message: {}", e.getMessage());
             }

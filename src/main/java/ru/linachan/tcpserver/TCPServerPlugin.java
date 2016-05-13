@@ -1,6 +1,6 @@
 package ru.linachan.tcpserver;
 
-import ru.linachan.yggdrasil.component.YggdrasilPlugin;
+import ru.linachan.yggdrasil.plugin.YggdrasilPlugin;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -12,11 +12,6 @@ public class TCPServerPlugin extends YggdrasilPlugin {
     private ThreadGroup threadGroup;
 
     private Map<Integer, TCPListener> services;
-
-    @Override
-    protected void setUpDependencies() {
-        // No dependencies
-    }
 
     @Override
     protected void onInit() {

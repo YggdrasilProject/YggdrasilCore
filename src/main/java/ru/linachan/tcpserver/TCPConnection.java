@@ -3,7 +3,7 @@ package ru.linachan.tcpserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.linachan.yggdrasil.YggdrasilCore;
-import ru.linachan.yggdrasil.component.YggdrasilPluginManager;
+import ru.linachan.yggdrasil.plugin.YggdrasilPluginManager;
 
 import java.io.IOException;
 import java.io.InputStream;

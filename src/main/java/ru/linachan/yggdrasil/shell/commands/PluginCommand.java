@@ -1,8 +1,8 @@
 package ru.linachan.yggdrasil.shell.commands;
 
 import ru.linachan.yggdrasil.common.console.ConsoleColor;
-import ru.linachan.yggdrasil.component.YggdrasilPlugin;
-import ru.linachan.yggdrasil.component.YggdrasilPluginManager;
+import ru.linachan.yggdrasil.plugin.YggdrasilPlugin;
+import ru.linachan.yggdrasil.plugin.YggdrasilPluginManager;
 import ru.linachan.yggdrasil.shell.YggdrasilShellCommand;
 
 import java.io.IOException;

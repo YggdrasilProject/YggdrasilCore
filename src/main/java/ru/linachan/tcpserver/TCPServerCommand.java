@@ -5,7 +5,7 @@ import ru.linachan.webservice.WebServiceRequest;
 import ru.linachan.webservice.utils.RequestBin;
 import ru.linachan.webservice.utils.RequestBinMonitor;
 import ru.linachan.yggdrasil.common.console.InterruptHandler;
-import ru.linachan.yggdrasil.component.YggdrasilPluginManager;
+import ru.linachan.yggdrasil.plugin.YggdrasilPluginManager;
 import ru.linachan.yggdrasil.shell.YggdrasilShellCommand;
 
 import java.io.*;
