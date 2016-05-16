@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class RPCClient implements Runnable {
 
@@ -18,6 +19,7 @@ public class RPCClient implements Runnable {
     private Boolean isRunning = true;
 
     private Map<String, RPCCallback> callbackMap = new HashMap<>();
+    private Map<String, Long> callbackTimeOut = new HashMap<>();
 
     private static Logger logger = LoggerFactory.getLogger(RPCClient.class);
 
@@ -35,14 +37,15 @@ public class RPCClient implements Runnable {
         String corrId = UUID.randomUUID().toString();
 
         AMQP.BasicProperties props = new AMQP.BasicProperties
-                .Builder()
-                .correlationId(corrId)
-                .replyTo(replyQueueName)
-                .build();
+            .Builder()
+            .correlationId(corrId)
+            .replyTo(replyQueueName)
+            .build();
 
         channel.basicPublish(exchange, key, props, message.getBytes());
 
         callbackMap.put(corrId, callback);
+        callbackTimeOut.put(corrId, System.currentTimeMillis());
     }
 
     public void start() {
@@ -64,12 +67,21 @@ public class RPCClient implements Runnable {
             } catch (InterruptedException e) {
                 logger.error("Unable to handle RPC message: {}", e.getMessage());
             }
+
+            callbackTimeOut.keySet().stream()
+                .filter(corrId -> System.currentTimeMillis() - callbackTimeOut.get(corrId) > 60000)
+                .collect(Collectors.toList()).stream()
+                .forEach(corrId -> {
+                    callbackMap.remove(corrId);
+                    callbackTimeOut.remove(corrId);
+                });
         }
     }
 
     public void shutdown() throws IOException {
         isRunning = false;
         try {
+            channel.queueDelete(replyQueueName);
             connection.close();
         } catch(AlreadyClosedException ignored) {}
     }

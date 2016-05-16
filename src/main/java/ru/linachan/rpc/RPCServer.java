@@ -32,7 +32,7 @@ public class RPCServer implements Runnable {
         service = rpcService;
         queue = UUID.randomUUID();
 
-        channel.queueDeclare(queue.toString(), false, false, false, null);
+        channel.queueDeclare(queue.toString(), false, false, true, null);
         channel.basicQos(1);
 
         consumer = new QueueingConsumer(channel);
