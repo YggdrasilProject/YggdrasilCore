@@ -61,7 +61,7 @@ public class RPCClient implements Runnable {
                 if (callbackMap.containsKey(delivery.getProperties().getCorrelationId())) {
                     callbackMap.get(delivery.getProperties().getCorrelationId()).callback(new String(delivery.getBody()));
                 }
-            } catch (ShutdownSignalException e) {
+            } catch (ShutdownSignalException | ConsumerCancelledException e) {
                 isRunning = false;
                 break;
             } catch (InterruptedException e) {
