@@ -100,6 +100,8 @@ public class YggdrasilShell implements Command, Runnable, ExitCallback, Interrup
                     console.format(" ➜ ", (subCommandExitCode == 0) ? ConsoleColor.GREEN : ConsoleColor.RED, null, null, true)
                 ));
 
+                console.addHistoryItem(commandLine);
+
                 CommandLineUtils.CommandLine command = CommandLineUtils.parse(commandLine);
 
                 subCommand = routeCommand(command.getCmd());

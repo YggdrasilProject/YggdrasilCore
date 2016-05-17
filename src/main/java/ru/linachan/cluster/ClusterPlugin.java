@@ -60,7 +60,7 @@ public class ClusterPlugin extends YggdrasilPlugin implements RPCService, RPCCal
                         YggdrasilPluginManager.class
                     ).get(ClusterPlugin.class));
                 } catch (IOException | InterruptedException e) {
-                    logger.error("Unable to perform RPC call: {}", e.getMessage());
+                    logger.error("Unable to perform RPC rpcCall: {}", e.getMessage());
                 }
             }
 

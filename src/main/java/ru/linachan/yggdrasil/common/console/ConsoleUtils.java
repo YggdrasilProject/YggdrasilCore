@@ -24,6 +24,10 @@ public class ConsoleUtils {
 
     private List<String> autoCompleteList = new ArrayList<>();
 
+    private List<String> commandHistory = new ArrayList<>();
+    private Integer commandHistoryID = -1;
+    private String lastCommand = null;
+
     public ConsoleUtils(InputStreamReader in, OutputStreamWriter out, OutputStreamWriter err) {
         inputStream = in;
         outputStream = out;
@@ -42,6 +46,11 @@ public class ConsoleUtils {
 
     public void addCompletions(List<String> completions) {
         autoCompleteList.addAll(completions);
+    }
+
+    public void addHistoryItem(String historyRecord) {
+        commandHistory.add(historyRecord);
+        commandHistoryID = -1;
     }
 
     public void setInterruptHandler(InterruptHandler handler) {
@@ -145,16 +154,47 @@ public class ConsoleUtils {
                     inputStream.read(subCharBuffer);
                     if (subCharBuffer[0] == (char)0x5B) {
                         switch (subCharBuffer[1]) {
-                            case (char)0x44:
+                            case (char)0x44: // Left Arrow
                                 if (cursorPosition > 0) {
                                     cursorPosition--;
                                     moveCarriage(-1);
                                 }
                                 break;
-                            case (char)0x43:
+                            case (char)0x43: // Right Arrow
                                 if (cursorPosition < inputData.length()) {
                                     cursorPosition++;
                                     moveCarriage(1);
+                                }
+                                break;
+                            case (char)0x42: // Down Arrow
+                                if (commandHistoryID != -1) {
+                                    if (commandHistoryID < commandHistory.size() - 1) {
+                                        commandHistoryID++;
+                                        inputData = new StringBuilder(commandHistory.get(commandHistoryID));
+                                    } else {
+                                        inputData = new StringBuilder(lastCommand);
+                                        commandHistoryID = -1;
+                                        lastCommand = null;
+                                    }
+                                }
+
+                                delete(cursorPosition);
+                                write(inputData.toString());
+                                cursorPosition = inputData.length();
+                                break;
+                            case (char)0x41: // Up Arrow
+                                if (commandHistoryID == -1) {
+                                    lastCommand = inputData.toString();
+                                    commandHistoryID = commandHistory.size();
+                                }
+
+                                if (commandHistoryID > 0) {
+                                    commandHistoryID--;
+                                    inputData = new StringBuilder(commandHistory.get(commandHistoryID));
+
+                                    delete(cursorPosition);
+                                    write(inputData.toString());
+                                    cursorPosition = inputData.length();
                                 }
                                 break;
                         }

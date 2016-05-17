@@ -9,7 +9,9 @@ import java.util.Map;
 public class EmptyCommand extends YggdrasilShellCommand {
 
     @Override
-    protected void execute(String command, List<String> args, Map<String, String> kwargs) throws IOException {}
+    protected void init() throws IOException {}
+
+    public void execute() throws IOException {}
 
     @Override
     protected void onInterrupt() {}

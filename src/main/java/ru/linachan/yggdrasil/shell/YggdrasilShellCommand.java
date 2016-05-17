@@ -9,8 +9,12 @@ import ru.linachan.yggdrasil.YggdrasilCore;
 import ru.linachan.yggdrasil.common.console.CommandLineUtils;
 import ru.linachan.yggdrasil.common.console.ConsoleUtils;
 import ru.linachan.yggdrasil.common.console.InterruptHandler;
+import ru.linachan.yggdrasil.shell.helpers.CommandAction;
 
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,9 +33,9 @@ public abstract class YggdrasilShellCommand implements Command, Runnable, Interr
 
     private Thread commandThread;
 
-    private String command;
-    private List<String> args;
-    private Map<String, String> kwargs;
+    protected String command;
+    protected List<String> args;
+    protected Map<String, String> kwargs;
 
     private boolean isRunning = true;
     private boolean exited = false;
@@ -98,7 +102,16 @@ public abstract class YggdrasilShellCommand implements Command, Runnable, Interr
     public void run() {
         try {
             console = new ConsoleUtils(input, output, error);
-            execute(command, args, kwargs);
+
+            init();
+
+            String action = null;
+            if (args.size() > 0) {
+                action = args.get(0);
+                args.remove(0);
+            }
+
+            dispatch(action);
         } catch (IOException e) {
             logger.error("Unable to execute command", e);
             exit(1);
@@ -112,7 +125,7 @@ public abstract class YggdrasilShellCommand implements Command, Runnable, Interr
         isRunning = false;
     }
 
-    protected abstract void execute(String command, List<String> args, Map<String, String> kwargs) throws IOException;
+    protected abstract void init() throws IOException;
     protected abstract void onInterrupt();
 
     protected void exit(Integer exitCode) {
@@ -131,6 +144,36 @@ public abstract class YggdrasilShellCommand implements Command, Runnable, Interr
 
     protected boolean isRunning() {
         return isRunning;
+    }
+
+    private void dispatch(String methodName) throws IOException {
+        if (methodName != null) {
+            try {
+                Method handler = getClass().getDeclaredMethod(methodName);
+
+                handler.invoke(this);
+            } catch (NoSuchMethodException e) {
+                console.writeLine("Unknown method: %s", methodName);
+            } catch (InvocationTargetException | IllegalAccessException e) {
+                console.writeLine("Unable to perform action '%s': %s", methodName, e.getMessage());
+            }
+        } else {
+            try {
+                Method handler = getClass().getDeclaredMethod("execute");
+
+                handler.invoke(this);
+            } catch (NoSuchMethodException e) {
+                Map<String, String> commandMethods = new HashMap<>();
+                for (Method method: getClass().getDeclaredMethods()) {
+                    if (method.isAnnotationPresent(CommandAction.class)) {
+                        commandMethods.put(method.getName(), method.getAnnotation(CommandAction.class).value());
+                    }
+                }
+                console.writeMap(commandMethods, "Action", "Description");
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                console.writeLine("Unable to execute command: %s", e.getMessage());
+            }
+        }
     }
 
     @Override

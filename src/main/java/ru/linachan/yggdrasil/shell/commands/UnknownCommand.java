@@ -8,8 +8,11 @@ import java.util.Map;
 
 public class UnknownCommand extends YggdrasilShellCommand {
 
+
     @Override
-    protected void execute(String command, List<String> args, Map<String, String> kwargs) throws IOException {
+    protected void init() throws IOException {}
+
+    public void execute() throws IOException {
         console.writeLine("%s: command not found", command);
 
         exit(1);

@@ -1,20 +1,19 @@
 package ru.linachan.yggdrasil.shell.commands;
 
 import ru.linachan.yggdrasil.shell.YggdrasilShellCommand;
+import ru.linachan.yggdrasil.shell.helpers.ShellCommand;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+@ShellCommand(command = "shutdown", description = "Shutdown Yggdrasil")
 public class ShutdownCommand extends YggdrasilShellCommand {
 
-    public static String commandName = "shutdown";
-    public static String commandDescription = "Shutdown Yggdrasil";
+    protected void init() throws IOException {}
 
-    @Override
-    protected void execute(String command, List<String> args, Map<String, String> kwargs) throws IOException {
+    public void execute() throws IOException {
         console.writeLine("Shutting down Yggdrasil...\r\n");
-
         core.shutdown();
     }
 
