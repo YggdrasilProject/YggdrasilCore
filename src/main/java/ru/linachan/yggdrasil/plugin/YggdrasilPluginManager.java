@@ -25,7 +25,7 @@ public class YggdrasilPluginManager extends YggdrasilGenericManager<YggdrasilPlu
     @Override
     protected void onDiscover(Class<? extends YggdrasilPlugin> discoveredObject) {
         logger.info("Plugin discovered: {}", discoveredObject.getSimpleName());
-        if (discoveredObject.isAnnotationPresent(AutoStart.class)) {
+        if (discoveredObject.isAnnotationPresent(AutoStart.class)||core.getConfig().getList("yggdrasil.auto_start", String.class).contains(discoveredObject.getSimpleName())) {
             autoStartQueue.add(discoveredObject);
         }
     }

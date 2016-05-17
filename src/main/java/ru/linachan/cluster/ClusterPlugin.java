@@ -20,7 +20,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
-@AutoStart
 @DependsOn(RPCPlugin.class)
 public class ClusterPlugin extends YggdrasilPlugin implements RPCService, RPCCallback {
 
