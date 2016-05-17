@@ -1,43 +1,37 @@
 package ru.linachan.webservice.utils;
 
+import ru.linachan.webservice.WebServiceHTTPCode;
 import ru.linachan.webservice.WebServiceRequest;
 import ru.linachan.webservice.WebServiceResponse;
 import ru.linachan.webservice.WebServiceRoute;
 
 public class RouteNotFound extends WebServiceRoute {
 
-    @Override
-    protected WebServiceResponse HEAD(WebServiceRequest request) {
-        return null;
+    public WebServiceResponse HEAD(WebServiceRequest request) {
+        return new WebServiceResponse(WebServiceHTTPCode.NOT_FOUND);
     }
 
-    @Override
-    protected WebServiceResponse OPTIONS(WebServiceRequest request) {
-        return null;
+    public WebServiceResponse OPTIONS(WebServiceRequest request) {
+        return new WebServiceResponse(WebServiceHTTPCode.NOT_FOUND);
     }
 
-    @Override
-    protected WebServiceResponse GET(WebServiceRequest request) {
-        return null;
+    public WebServiceResponse GET(WebServiceRequest request) {
+        return new WebServiceResponse(WebServiceHTTPCode.NOT_FOUND);
     }
 
-    @Override
-    protected WebServiceResponse POST(WebServiceRequest request) {
-        return null;
+    public WebServiceResponse POST(WebServiceRequest request) {
+        return new WebServiceResponse(WebServiceHTTPCode.NOT_FOUND);
     }
 
-    @Override
-    protected WebServiceResponse PUT(WebServiceRequest request) {
-        return null;
+    public WebServiceResponse PUT(WebServiceRequest request) {
+        return new WebServiceResponse(WebServiceHTTPCode.NOT_FOUND);
     }
 
-    @Override
-    protected WebServiceResponse PATCH(WebServiceRequest request) {
-        return null;
+    public WebServiceResponse PATCH(WebServiceRequest request) {
+        return new WebServiceResponse(WebServiceHTTPCode.NOT_FOUND);
     }
 
-    @Override
-    protected WebServiceResponse DELETE(WebServiceRequest request) {
-        return null;
+    public WebServiceResponse DELETE(WebServiceRequest request) {
+        return new WebServiceResponse(WebServiceHTTPCode.NOT_FOUND);
     }
 }

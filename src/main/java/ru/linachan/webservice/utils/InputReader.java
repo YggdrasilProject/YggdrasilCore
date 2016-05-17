@@ -29,7 +29,10 @@ public class InputReader {
             } else if (Arrays.equals(buffer, "\n".getBytes())) {
                 break;
             } else {
-                string.append(new String(buffer));
+                String data = new String(buffer);
+                if (data.length() > 0) {
+                    string.append(data);
+                }
             }
         }
 
