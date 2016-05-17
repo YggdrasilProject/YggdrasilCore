@@ -156,16 +156,7 @@ public class CheatProcess {
 
         byte[] nullArray = CheatUtils.getNullArray(bytesPerChar);
 
-        while (true) {
-            Memory memoryPage = readMemory(address - bytesPerChar, bytesPerChar);
-            byte[] memoryBytes = memoryPage.getByteArray(0, bytesPerChar);
-
-            if (Arrays.areEqual(memoryBytes, nullArray)) {
-                break;
-            } else {
-                address -= bytesPerChar;
-            }
-        }
+        address = findStringBaseAddress(address, bytesPerChar);
 
         while (true) {
             Memory memoryPage = readMemory(address, bytesPerChar);
@@ -183,6 +174,8 @@ public class CheatProcess {
     }
 
     public void writeString(String data, long address, int bytesPerChar) throws UnsupportedEncodingException {
+        address = findStringBaseAddress(address, bytesPerChar);
+
         byte[] dataBytes = CheatUtils.prepareString(data, bytesPerChar);
         byte[] nullArray = CheatUtils.getNullArray(Math.max(readString(address, bytesPerChar).length() * bytesPerChar, dataBytes.length));
 
