@@ -125,30 +125,70 @@ public class CheatCommand extends YggdrasilShellCommand {
             Integer bytesPerChar = Integer.parseInt(kwargs.getOrDefault("bytes", "2"));
             String type = kwargs.getOrDefault("type", "string");
 
-            switch (type) {
-                case "string":
-                    if (value != null) {
-                        List<Long> searchResults = cheatEngine.getAttachedProcess()
-                            .getMemoryReader()
-                            .findString(value, bytesPerChar);
-                        Map<String, String> searchMap = new HashMap<>();
+            CheatMemoryReader memoryReader = cheatEngine.getAttachedProcess()
+                .getMemoryReader();
 
-                        searchResults.stream()
+            if (value != null) {
+                Map<String, String> searchMap = new HashMap<>();
+
+                switch (type) {
+                    case "string":
+                        memoryReader.findString(value, bytesPerChar).stream()
                             .forEach(result -> searchMap.put(
                                 String.format("%08X", result),
-                                cheatEngine.getAttachedProcess()
-                                    .getMemoryReader()
-                                    .readString(result, bytesPerChar))
+                                memoryReader.readString(result, bytesPerChar))
                             );
+                        break;
+                    case "byte":
+                        memoryReader.findByte(Byte.parseByte(value)).stream()
+                            .forEach(result -> searchMap.put(
+                                String.format("%08X", result),
+                                String.valueOf(memoryReader.readByte(result))
+                            ));
+                        break;
+                    case "short":
+                        memoryReader.findShort(Short.parseShort(value)).stream()
+                            .forEach(result -> searchMap.put(
+                                String.format("%08X", result),
+                                String.valueOf(memoryReader.readShort(result))
+                            ));
+                        break;
+                    case "int":
+                        memoryReader.findInt(Integer.parseInt(value)).stream()
+                            .forEach(result -> searchMap.put(
+                                String.format("%08X", result),
+                                String.valueOf(memoryReader.readInt(result))
+                            ));
+                        break;
+                    case "long":
+                        memoryReader.findLong(Long.parseLong(value)).stream()
+                            .forEach(result -> searchMap.put(
+                                String.format("%08X", result),
+                                String.valueOf(memoryReader.readLong(result))
+                            ));
+                        break;
+                    case "float":
+                        memoryReader.findFloat(Float.parseFloat(value)).stream()
+                            .forEach(result -> searchMap.put(
+                                String.format("%08X", result),
+                                String.valueOf(memoryReader.readFloat(result))
+                            ));
+                        break;
+                    case "double":
+                        memoryReader.findDouble(Double.parseDouble(value)).stream()
+                            .forEach(result -> searchMap.put(
+                                String.format("%08X", result),
+                                String.valueOf(memoryReader.readDouble(result))
+                            ));
+                        break;
+                    default:
+                        console.writeLine("Unknown type: '%s'", type);
+                        break;
+                }
 
-                        console.writeMap(searchMap, "Address", "Value");
-                    } else {
-                        console.writeLine("No pattern provided");
-                    }
-                    break;
-                default:
-                    console.writeLine("Unknown type: '%s'", type);
-                    break;
+                console.writeMap(searchMap, "Address", "Value");
+            } else {
+                console.writeLine("No pattern provided");
             }
         } else {
             console.writeLine("No process attached");
