@@ -128,10 +128,14 @@ public class ConsoleUtils {
                 case '\b':
                 case (char)0x7F:
                     if (inputData.length() > 0) {
-                        delete(cursorPosition);
+                        moveCarriage(inputData.length() - cursorPosition);
+                        delete(inputData.length());
+
                         inputData.deleteCharAt(cursorPosition - 1);
                         cursorPosition--;
+
                         write(inputData.toString());
+                        moveCarriage(cursorPosition - inputData.length());
                     }
                     break;
                 case (char)0x03:
