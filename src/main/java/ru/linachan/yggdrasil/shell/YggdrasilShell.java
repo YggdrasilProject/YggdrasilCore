@@ -97,7 +97,7 @@ public class YggdrasilShell implements Command, Runnable, ExitCallback, Interrup
                 String commandLine = console.read(String.format(
                     "%s%s",
                     console.format(environment.getEnv().get("USER"), ConsoleColor.CYAN, null, null, true),
-                    console.format(" ➜ ", (subCommandExitCode == 0) ? ConsoleColor.GREEN : ConsoleColor.RED, null, null, true)
+                    console.format(" # ", (subCommandExitCode == 0) ? ConsoleColor.GREEN : ConsoleColor.RED, null, null, true)
                 ));
 
                 console.addHistoryItem(commandLine);

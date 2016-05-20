@@ -4,14 +4,11 @@ import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.*;
 import com.sun.jna.ptr.IntByReference;
-import org.bouncycastle.util.Arrays;
 import ru.linachan.cheat.utils.CheatUtils;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static com.sun.jna.platform.win32.WinNT.MEM_COMMIT;
 import static com.sun.jna.platform.win32.WinNT.PAGE_READWRITE;
@@ -109,87 +106,13 @@ public class CheatProcess {
         return write.getValue();
     }
 
-    public List<Long> findBytes(byte[] pattern) {
-        List<Long> searchResult = new ArrayList<>();
-
-        for (WinNT.MEMORY_BASIC_INFORMATION memoryInfo: queryPages()) {
-            Memory memoryPage = readMemory(memoryInfo.baseAddress, memoryInfo.regionSize);
-            byte[] memoryBytes = memoryPage.getByteArray(0x00, memoryInfo.regionSize.intValue());
-
-            List<Integer> memoryOffsets = CheatUtils.findArray(pattern, memoryBytes);
-
-            searchResult.addAll(
-                    memoryOffsets.stream()
-                            .map(memoryOffset -> Pointer.nativeValue(memoryInfo.baseAddress) + memoryOffset)
-                            .collect(Collectors.toList())
-            );
-        }
-
-        return searchResult;
-    }
-
-    public long findStringBaseAddress(long stringAddress, int bytesPerChar) {
-        byte[] nullArray = CheatUtils.getNullArray(bytesPerChar);
-
-        while (true) {
-            Memory memoryPage = readMemory(stringAddress - bytesPerChar, bytesPerChar);
-            byte[] memoryBytes = memoryPage.getByteArray(0, bytesPerChar);
-
-            if (Arrays.areEqual(memoryBytes, nullArray)) {
-                break;
-            } else {
-                stringAddress -= bytesPerChar;
-            }
-        }
-
-        return stringAddress;
-    }
-
-    public List<Long> findString(String pattern, int bytesPerChar) throws UnsupportedEncodingException {
-        return findBytes(CheatUtils.prepareString(pattern, bytesPerChar)).stream()
-            .map(address -> findStringBaseAddress(address, bytesPerChar))
-            .collect(Collectors.toList());
-    }
-
-    public String readString(long address, int bytesPerChar) {
-        StringBuilder resultString = new StringBuilder();
-
-        byte[] nullArray = CheatUtils.getNullArray(bytesPerChar);
-
-        address = findStringBaseAddress(address, bytesPerChar);
-
-        while (true) {
-            Memory memoryPage = readMemory(address, bytesPerChar);
-            byte[] memoryBytes = memoryPage.getByteArray(0, bytesPerChar);
-
-            if (Arrays.areEqual(memoryBytes, nullArray)) {
-                break;
-            } else {
-                resultString.append(new String(memoryBytes));
-                address += bytesPerChar;
-            }
-        }
-
-        return resultString.toString();
-    }
-
-    public void writeString(String data, long address, int bytesPerChar) throws UnsupportedEncodingException {
-        address = findStringBaseAddress(address, bytesPerChar);
-
-        byte[] dataBytes = CheatUtils.prepareString(data, bytesPerChar);
-        byte[] nullArray = CheatUtils.getNullArray(Math.max(readString(address, bytesPerChar).length() * bytesPerChar, dataBytes.length));
-
-        System.arraycopy(dataBytes, 0, nullArray, 0, dataBytes.length);
-
-        Memory toWrite = new Memory(nullArray.length);
-        toWrite.write(0, nullArray, 0, nullArray.length);
-
-        writeMemory(address, toWrite);
-    }
-
     public void kill() {
         kernel32.TerminateProcess(processHandle, 0);
         kernel32.CloseHandle(processHandle);
+    }
+
+    public CheatMemoryReader getMemoryReader() {
+        return new CheatMemoryReader(this);
     }
 
     public String getProcessName() {

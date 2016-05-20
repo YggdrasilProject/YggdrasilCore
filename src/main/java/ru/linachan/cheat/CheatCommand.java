@@ -128,13 +128,18 @@ public class CheatCommand extends YggdrasilShellCommand {
             switch (type) {
                 case "string":
                     if (value != null) {
-                        List<Long> searchResults = cheatEngine.getAttachedProcess().findString(value, bytesPerChar);
+                        List<Long> searchResults = cheatEngine.getAttachedProcess()
+                            .getMemoryReader()
+                            .findString(value, bytesPerChar);
                         Map<String, String> searchMap = new HashMap<>();
 
                         searchResults.stream()
-                                .forEach(result -> searchMap.put(
-                                        String.format("%08X", result), cheatEngine.getAttachedProcess().readString(result, bytesPerChar))
-                                );
+                            .forEach(result -> searchMap.put(
+                                String.format("%08X", result),
+                                cheatEngine.getAttachedProcess()
+                                    .getMemoryReader()
+                                    .readString(result, bytesPerChar))
+                            );
 
                         console.writeMap(searchMap, "Address", "Value");
                     } else {
