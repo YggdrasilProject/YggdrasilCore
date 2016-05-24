@@ -1,5 +1,6 @@
 package ru.linachan.yggdrasil.shell.commands;
 
+import com.google.common.base.Joiner;
 import ru.linachan.yggdrasil.plugin.YggdrasilPlugin;
 import ru.linachan.yggdrasil.plugin.YggdrasilPluginManager;
 import ru.linachan.yggdrasil.shell.YggdrasilShellCommand;
@@ -35,6 +36,7 @@ public class PluginCommand extends YggdrasilShellCommand {
             pluginInfo.put("name", pluginManager.getPluginInfo(plugin).name());
             pluginInfo.put("enabled", String.valueOf(isEnabled));
             pluginInfo.put("description", pluginManager.getPluginInfo(plugin).description());
+            pluginInfo.put("dependencies", Joiner.on(", ").join(pluginManager.getPluginDependencies(plugin)));
 
             pluginsInfo.add(pluginInfo);
         }
@@ -43,6 +45,7 @@ public class PluginCommand extends YggdrasilShellCommand {
         pluginsFields.add("name");
         pluginsFields.add("enabled");
         pluginsFields.add("description");
+        pluginsFields.add("dependencies");
 
         console.writeTable(pluginsInfo, pluginsFields);
     }

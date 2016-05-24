@@ -84,6 +84,18 @@ public class YggdrasilPluginManager extends YggdrasilGenericManager<YggdrasilPlu
         return null;
     }
 
+    public List<String> getPluginDependencies(Class<? extends YggdrasilPlugin> pluginClass) {
+        List<String> dependencies = new ArrayList<>();
+
+        for (DependsOn dependency : pluginClass.getAnnotationsByType(DependsOn.class)) {
+            if (dependency.value().isAnnotationPresent(Plugin.class)) {
+                dependencies.add(dependency.value().getAnnotation(Plugin.class).name());
+            }
+        }
+
+        return dependencies;
+    }
+
     @Override
     public void shutdown() {
         managedObjects.values().stream()
