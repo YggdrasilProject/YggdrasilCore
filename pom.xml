@@ -8,6 +8,10 @@
     <artifactId>yggdrasil-core</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.googlecode.json-simple</groupId>
@@ -70,6 +74,9 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
+                    <compilerArgument>-Xlint:all</compilerArgument>
+                    <showWarnings>true</showWarnings>
+                    <showDeprecation>true</showDeprecation>
                 </configuration>
             </plugin>
             <plugin>
