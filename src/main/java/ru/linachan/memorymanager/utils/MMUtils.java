@@ -1,7 +1,7 @@
-package ru.linachan.cheat.utils;
+package ru.linachan.memorymanager.utils;
 
 import com.sun.jna.Memory;
-import ru.linachan.cheat.CheatProcess;
+import ru.linachan.memorymanager.MMProcess;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CheatUtils {
+public class MMUtils {
 
     public static String dumpMemory(Memory memoryPage, long memorySize, long baseAddress) {
         long memoryOffset = 0x00;
@@ -87,7 +87,7 @@ public class CheatUtils {
         return nullArray;
     }
 
-    public static Map<Integer, String> processListToMap(List<CheatProcess> processList) {
+    public static Map<Integer, String> processListToMap(List<MMProcess> processList) {
         Map<Integer, String> processMap = new HashMap<>();
 
         processList.stream().forEach(process -> processMap.put(process.getProcessID(), process.getProcessName()));

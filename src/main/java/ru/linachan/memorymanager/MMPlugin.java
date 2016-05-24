@@ -1,19 +1,21 @@
-package ru.linachan.cheat;
+package ru.linachan.memorymanager;
 
 import com.sun.jna.LastErrorException;
 import com.sun.jna.Native;
 import com.sun.jna.platform.win32.*;
 import ru.linachan.yggdrasil.plugin.YggdrasilPlugin;
+import ru.linachan.yggdrasil.plugin.helpers.Plugin;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class CheatPlugin extends YggdrasilPlugin {
+@Plugin(name = "MemoryManager", description = "Provides ability to manage process memory")
+public class MMPlugin extends YggdrasilPlugin {
 
     static Kernel32 kernel32 = Kernel32.INSTANCE;
 
-    private CheatProcess attachedProcess = null;
+    private MMProcess attachedProcess = null;
 
     @Override
     protected void onInit() {
@@ -25,8 +27,8 @@ public class CheatPlugin extends YggdrasilPlugin {
 
     }
 
-    public List<CheatProcess> getProcessesByName(String processName) {
-        List<CheatProcess> processes = new ArrayList<>();
+    public List<MMProcess> getProcessesByName(String processName) {
+        List<MMProcess> processes = new ArrayList<>();
 
         WinNT.HANDLE snapshot = null;
 
@@ -38,7 +40,7 @@ public class CheatPlugin extends YggdrasilPlugin {
             do {
                 String processEXEName = Native.toString(entry.szExeFile);
                 if (processEXEName.equals(processName)) {
-                    processes.add(new CheatProcess(Native.toString(entry.szExeFile), entry.th32ProcessID.intValue()));
+                    processes.add(new MMProcess(Native.toString(entry.szExeFile), entry.th32ProcessID.intValue()));
                 }
             } while(kernel32.Process32Next(snapshot, entry));
         } finally {
@@ -48,8 +50,8 @@ public class CheatPlugin extends YggdrasilPlugin {
         return processes;
     }
 
-    public List<CheatProcess> getAllProcesses() throws LastErrorException {
-        List<CheatProcess> processes = new ArrayList<>();
+    public List<MMProcess> getAllProcesses() throws LastErrorException {
+        List<MMProcess> processes = new ArrayList<>();
         WinNT.HANDLE snapshot = null;
 
         try {
@@ -58,7 +60,7 @@ public class CheatPlugin extends YggdrasilPlugin {
             kernel32.Process32First(snapshot, entry);
 
             do {
-                processes.add(new CheatProcess(Native.toString(entry.szExeFile), entry.th32ProcessID.intValue()));
+                processes.add(new MMProcess(Native.toString(entry.szExeFile), entry.th32ProcessID.intValue()));
             } while(kernel32.Process32Next(snapshot, entry));
         } finally {
             kernel32.CloseHandle(snapshot);
@@ -67,9 +69,9 @@ public class CheatPlugin extends YggdrasilPlugin {
         return processes;
     }
 
-    public void attachProcess(CheatProcess process) {
+    public void attachProcess(MMProcess process) {
         process.openProcess(
-            CheatProcess.PROCESS_VM_READ | CheatProcess.PROCESS_VM_WRITE | CheatProcess.PROCESS_VM_OPERATIONS | CheatProcess.PROCESS_QUERY_INFO
+            MMProcess.PROCESS_VM_READ | MMProcess.PROCESS_VM_WRITE | MMProcess.PROCESS_VM_OPERATIONS | MMProcess.PROCESS_QUERY_INFO
         );
 
         attachedProcess = process;
@@ -79,7 +81,7 @@ public class CheatPlugin extends YggdrasilPlugin {
         attachedProcess = null;
     }
 
-    public CheatProcess getAttachedProcess() {
+    public MMProcess getAttachedProcess() {
         return attachedProcess;
     }
 

@@ -6,6 +6,7 @@ import com.rabbitmq.client.ShutdownNotifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.linachan.yggdrasil.plugin.YggdrasilPlugin;
+import ru.linachan.yggdrasil.plugin.helpers.Plugin;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
+@Plugin(name = "RPC", description = "Provides ability to launch RPC services")
 public class RPCPlugin extends YggdrasilPlugin {
 
     private ConnectionFactory rpcConnectionFactory;

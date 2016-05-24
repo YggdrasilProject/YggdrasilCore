@@ -1,11 +1,13 @@
 package ru.linachan.tcpserver;
 
 import ru.linachan.yggdrasil.plugin.YggdrasilPlugin;
+import ru.linachan.yggdrasil.plugin.helpers.Plugin;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+@Plugin(name = "TCPServer", description = "Provides ability to launch TCP-based services")
 public class TCPServerPlugin extends YggdrasilPlugin {
 
     private TCPConnectionManager connectionManager;

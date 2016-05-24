@@ -7,6 +7,7 @@ import ru.linachan.yggdrasil.YggdrasilGenericManager;
 import ru.linachan.yggdrasil.plugin.helpers.AutoStart;
 import ru.linachan.yggdrasil.plugin.helpers.Dependencies;
 import ru.linachan.yggdrasil.plugin.helpers.DependsOn;
+import ru.linachan.yggdrasil.plugin.helpers.Plugin;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,6 +74,14 @@ public class YggdrasilPluginManager extends YggdrasilGenericManager<YggdrasilPlu
     @Override
     protected void onPackageDisabled(String packageName) {
 
+    }
+
+    public Plugin getPluginInfo(Class<? extends YggdrasilPlugin> pluginClass) {
+        if (pluginClass.isAnnotationPresent(Plugin.class)) {
+            return pluginClass.getAnnotation(Plugin.class);
+        }
+
+        return null;
     }
 
     @Override

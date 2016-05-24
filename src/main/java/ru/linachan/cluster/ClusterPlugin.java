@@ -8,6 +8,7 @@ import ru.linachan.yggdrasil.plugin.YggdrasilPluginManager;
 import ru.linachan.yggdrasil.plugin.helpers.AutoStart;
 import ru.linachan.yggdrasil.plugin.helpers.DependsOn;
 import ru.linachan.yggdrasil.plugin.YggdrasilPlugin;
+import ru.linachan.yggdrasil.plugin.helpers.Plugin;
 import ru.linachan.yggdrasil.scheduler.YggdrasilRunnable;
 import ru.linachan.yggdrasil.scheduler.YggdrasilTask;
 
@@ -20,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
+@Plugin(name = "Cluster", description = "Provides ability to join Yggdrasil instances into cluster")
 @DependsOn(RPCPlugin.class)
 public class ClusterPlugin extends YggdrasilPlugin implements RPCService, RPCCallback {
 

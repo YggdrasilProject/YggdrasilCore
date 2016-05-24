@@ -1,10 +1,10 @@
-package ru.linachan.cheat;
+package ru.linachan.memorymanager;
 
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.*;
 import com.sun.jna.ptr.IntByReference;
-import ru.linachan.cheat.utils.CheatUtils;
+import ru.linachan.memorymanager.utils.MMUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.Objects;
 import static com.sun.jna.platform.win32.WinNT.MEM_COMMIT;
 import static com.sun.jna.platform.win32.WinNT.PAGE_READWRITE;
 
-public class CheatProcess {
+public class MMProcess {
 
     private final String processName;
     private final int processID;
@@ -27,7 +27,7 @@ public class CheatProcess {
 
     static Kernel32 kernel32 = Kernel32.INSTANCE;
 
-    public CheatProcess(String processName, int processID) {
+    public MMProcess(String processName, int processID) {
         this.processName = processName;
         this.processID = processID;
     }
@@ -42,7 +42,7 @@ public class CheatProcess {
         for (WinNT.MEMORY_BASIC_INFORMATION memoryInfo: queryPages()) {
             Memory memoryPage = readMemory(memoryInfo.baseAddress, memoryInfo.regionSize);
 
-            memoryDump.append(CheatUtils.dumpMemory(
+            memoryDump.append(MMUtils.dumpMemory(
                 memoryPage, memoryInfo.regionSize.longValue(), Pointer.nativeValue(memoryInfo.baseAddress)
             ));
         }
@@ -53,7 +53,7 @@ public class CheatProcess {
     public String dumpMemory(long address, int bytesToRead) {
         Memory memoryPage = readMemory(address, bytesToRead);
 
-        return CheatUtils.dumpMemory(memoryPage, bytesToRead, address);
+        return MMUtils.dumpMemory(memoryPage, bytesToRead, address);
     }
 
     public List<WinNT.MEMORY_BASIC_INFORMATION> queryPages() {
@@ -111,8 +111,8 @@ public class CheatProcess {
         kernel32.CloseHandle(processHandle);
     }
 
-    public CheatMemoryReader getMemoryReader() {
-        return new CheatMemoryReader(this);
+    public MMReader getMemoryReader() {
+        return new MMReader(this);
     }
 
     public String getProcessName() {

@@ -1,10 +1,10 @@
-package ru.linachan.cheat;
+package ru.linachan.memorymanager;
 
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.WinNT;
 import org.bouncycastle.util.Arrays;
-import ru.linachan.cheat.utils.CheatUtils;
+import ru.linachan.memorymanager.utils.MMUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
@@ -12,11 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class CheatMemoryReader {
+public class MMReader {
 
-    private CheatProcess process;
+    private MMProcess process;
 
-    public CheatMemoryReader(CheatProcess process) {
+    public MMReader(MMProcess process) {
         this.process = process;
     }
 
@@ -29,7 +29,7 @@ public class CheatMemoryReader {
             Memory memoryPage = process.readMemory(memoryInfo.baseAddress, memoryInfo.regionSize);
             byte[] memoryBytes = memoryPage.getByteArray(0x00, memoryInfo.regionSize.intValue());
 
-            List<Integer> memoryOffsets = CheatUtils.findArray(pattern, memoryBytes);
+            List<Integer> memoryOffsets = MMUtils.findArray(pattern, memoryBytes);
 
             searchResult.addAll(
                 memoryOffsets.stream()
@@ -55,7 +55,7 @@ public class CheatMemoryReader {
     // String
 
     private long findStringBaseAddress(long stringAddress, int bytesPerChar) {
-        byte[] nullArray = CheatUtils.getNullArray(bytesPerChar);
+        byte[] nullArray = MMUtils.getNullArray(bytesPerChar);
 
         while (true) {
             Memory memoryPage = process.readMemory(stringAddress - bytesPerChar, bytesPerChar);
@@ -72,7 +72,7 @@ public class CheatMemoryReader {
     }
 
     public List<Long> findString(String pattern, int bytesPerChar) throws UnsupportedEncodingException {
-        return findBytes(CheatUtils.prepareString(pattern, bytesPerChar)).stream()
+        return findBytes(MMUtils.prepareString(pattern, bytesPerChar)).stream()
             .map(address -> findStringBaseAddress(address, bytesPerChar))
             .collect(Collectors.toList());
     }
@@ -80,7 +80,7 @@ public class CheatMemoryReader {
     public String readString(long address, int bytesPerChar) {
         StringBuilder resultString = new StringBuilder();
 
-        byte[] nullArray = CheatUtils.getNullArray(bytesPerChar);
+        byte[] nullArray = MMUtils.getNullArray(bytesPerChar);
 
         address = findStringBaseAddress(address, bytesPerChar);
 
@@ -102,8 +102,8 @@ public class CheatMemoryReader {
     public void writeString(String data, long address, int bytesPerChar) throws UnsupportedEncodingException {
         address = findStringBaseAddress(address, bytesPerChar);
 
-        byte[] dataBytes = CheatUtils.prepareString(data, bytesPerChar);
-        byte[] nullArray = CheatUtils.getNullArray(Math.max(readString(address, bytesPerChar).length() * bytesPerChar, dataBytes.length));
+        byte[] dataBytes = MMUtils.prepareString(data, bytesPerChar);
+        byte[] nullArray = MMUtils.getNullArray(Math.max(readString(address, bytesPerChar).length() * bytesPerChar, dataBytes.length));
 
         System.arraycopy(dataBytes, 0, nullArray, 0, dataBytes.length);
 
