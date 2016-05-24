@@ -8,6 +8,9 @@ import ru.linachan.yggdrasil.storage.YggdrasilStorageFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class LocalAuthBackend extends YggdrasilAuthBackend {
 
@@ -80,6 +83,19 @@ public class LocalAuthBackend extends YggdrasilAuthBackend {
             logger.error("Unable to update user data: {}", e.getMessage());
             return false;
         }
+    }
+
+    @Override
+    protected List<YggdrasilAuthUser> listUsers() {
+        return authData.listKeys().stream().map(userName -> {
+            YggdrasilAuthUser userData = null;
+            try {
+                userData = authData.getObject(userName, YggdrasilAuthUser.class);
+            } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+            return userData;
+        }).collect(Collectors.toList());
     }
 
     @Override

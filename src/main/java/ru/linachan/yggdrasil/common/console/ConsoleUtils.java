@@ -1,6 +1,7 @@
 package ru.linachan.yggdrasil.common.console;
 
 import com.google.common.base.Joiner;
+import org.apache.commons.lang.ArrayUtils;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -11,9 +12,13 @@ import java.util.stream.Collectors;
 
 public class ConsoleUtils {
 
-    private InputStreamReader inputStream;
-    private OutputStreamWriter outputStream;
-    private OutputStreamWriter errorStream;
+    private InputStream inputStream;
+    private OutputStream outputStream;
+    private OutputStream errorStream;
+
+    private InputStreamReader inputStreamReader;
+    private OutputStreamWriter outputStreamWriter;
+    private OutputStreamWriter errorStreamWriter;
 
     private InterruptHandler interruptHandler;
 
@@ -28,16 +33,14 @@ public class ConsoleUtils {
     private Integer commandHistoryID = -1;
     private String lastCommand = null;
 
-    public ConsoleUtils(InputStreamReader in, OutputStreamWriter out, OutputStreamWriter err) {
+    public ConsoleUtils(InputStream in, OutputStream out, OutputStream err) {
         inputStream = in;
         outputStream = out;
         errorStream = err;
-    }
 
-    public ConsoleUtils(InputStream in, OutputStream out, OutputStream err) {
-        inputStream = new InputStreamReader(in);
-        outputStream = new OutputStreamWriter(out);
-        errorStream = new OutputStreamWriter(err);
+        inputStreamReader = new InputStreamReader(in);
+        outputStreamWriter = new OutputStreamWriter(out);
+        errorStreamWriter = new OutputStreamWriter(err);
     }
 
     public void addCompletion(String completion) {
@@ -64,7 +67,7 @@ public class ConsoleUtils {
     }
 
     public String readLine() throws IOException {
-        return (new BufferedReader(inputStream)).readLine();
+        return (new BufferedReader(inputStreamReader)).readLine();
     }
 
     public String read(String query) throws IOException {
@@ -102,7 +105,7 @@ public class ConsoleUtils {
         write(query);
 
         while (inputInProgress) {
-            inputStream.read(charBuffer);
+            inputStreamReader.read(charBuffer);
             switch (charBuffer[0]) {
                 case '\r':
                 case '\n':
@@ -115,14 +118,14 @@ public class ConsoleUtils {
                         delete(cursorPosition);
                         inputData = new StringBuilder(autoCompleteList.get(0));
                         cursorPosition = inputData.length();
-                        write(inputData.toString());
+                        write(secret ? secret(inputData.length()) : inputData.toString());
                     } else if (autoCompleteList.size() > 1) {
                         write("\r\n");
                         for (String commandName: autoCompleteList) {
                             write(String.format("\t%1$s\r\n", commandName));
                         }
                         write(query);
-                        write(inputData.toString());
+                        write(secret ? secret(inputData.length()) : inputData.toString());
                     }
                     break;
                 case '\b':
@@ -134,7 +137,7 @@ public class ConsoleUtils {
                         inputData.deleteCharAt(cursorPosition - 1);
                         cursorPosition--;
 
-                        write(inputData.toString());
+                        write(secret ? secret(inputData.length()) : inputData.toString());
                         moveCarriage(cursorPosition - inputData.length());
                     }
                     break;
@@ -155,7 +158,7 @@ public class ConsoleUtils {
                     break;
                 case (char)0x1B:
                     char[] subCharBuffer = new char[2];
-                    inputStream.read(subCharBuffer);
+                    inputStreamReader.read(subCharBuffer);
                     if (subCharBuffer[0] == (char)0x5B) {
                         switch (subCharBuffer[1]) {
                             case (char)0x44: // Left Arrow
@@ -183,7 +186,7 @@ public class ConsoleUtils {
                                 }
 
                                 delete(cursorPosition);
-                                write(inputData.toString());
+                                write(secret ? secret(inputData.length()) : inputData.toString());
                                 cursorPosition = inputData.length();
                                 break;
                             case (char)0x41: // Up Arrow
@@ -197,7 +200,7 @@ public class ConsoleUtils {
                                     inputData = new StringBuilder(commandHistory.get(commandHistoryID));
 
                                     delete(cursorPosition);
-                                    write(inputData.toString());
+                                    write(secret ? secret(inputData.length()) : inputData.toString());
                                     cursorPosition = inputData.length();
                                 }
                                 break;
@@ -206,15 +209,23 @@ public class ConsoleUtils {
                     break;
                 default:
                     delete(cursorPosition);
-                    inputData.insert(cursorPosition, (secret) ? new char[] {'*'} : charBuffer);
+                    inputData.insert(cursorPosition, charBuffer);
                     cursorPosition++;
-                    write(inputData.toString());
+                    write(secret ? secret(inputData.length()) : inputData.toString());
                     moveCarriage(cursorPosition - inputData.length());
                     break;
             }
         }
 
         return inputData.toString();
+    }
+
+    private String secret(int length) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            sb.append("*");
+        }
+        return sb.toString();
     }
 
     private void delete(int positions) throws IOException {
@@ -333,7 +344,7 @@ public class ConsoleUtils {
     }
 
     public void write(String format, Object... args) throws IOException {
-        outputStream.write(
+        outputStreamWriter.write(
             String.format(
                 String.format(
                     "\033[%d;%d;%dm%s\033[0m",
@@ -344,7 +355,7 @@ public class ConsoleUtils {
                 ), args
             )
         );
-        outputStream.flush();
+        outputStreamWriter.flush();
     }
 
     public String format(String format, Object... args) {
@@ -370,7 +381,7 @@ public class ConsoleUtils {
     }
 
     public void error(String format, Object... args) throws IOException {
-        errorStream.write(
+        errorStreamWriter.write(
             String.format(
                 String.format(
                     "\033[%d;%d;%dm%s\033[0m",
@@ -381,6 +392,63 @@ public class ConsoleUtils {
                 ), args
             )
         );
-        errorStream.flush();
+        errorStreamWriter.flush();
+    }
+
+    public int read(byte[] buffer) throws IOException {
+        return inputStream.read(buffer);
+    }
+
+    public void write(byte[] buffer) throws IOException {
+        outputStream.write(buffer);
+        outputStream.flush();
+    }
+
+    public int read(char[] buffer) throws IOException {
+        return inputStreamReader.read(buffer);
+    }
+
+    public void write(char[] buffer) throws IOException {
+        outputStreamWriter.write(buffer);
+        outputStreamWriter.flush();
+    }
+
+    public void writeList(List<String> list, String header) throws IOException {
+        final int[] maxLength = {header.length()};
+        list.stream().forEach(row -> maxLength[0] = (row.length() > maxLength[0]) ? row.length() : maxLength[0]);
+
+        List<Integer> fields = new ArrayList<>();
+        fields.add(maxLength[0]);
+
+        String formatString = String.format("| %%-%ds |", maxLength[0]);
+        String borderString = generateBorder(fields);
+
+        writeLine(borderString);
+        writeLine(formatString, header);
+        writeLine(borderString);
+
+        for(String row: list) {
+            writeLine(formatString, row);
+        }
+
+        writeLine(borderString);
+    }
+
+    public void writeException(Throwable exc) throws IOException {
+        writeLine("Traceback (most recent call last):");
+
+        StackTraceElement[] stackTrace = exc.getStackTrace();
+        ArrayUtils.reverse(stackTrace);
+
+        for (StackTraceElement st: stackTrace) {
+            writeLine(
+                "  File \"%s\", line %d. in %s",
+                st.getFileName().replace(".java", ".py"),
+                st.getLineNumber(),
+                st.getMethodName()
+            );
+            writeLine("");
+        }
+        writeLine("%s: %s", exc.getClass().getSimpleName(), exc.getMessage());
     }
 }

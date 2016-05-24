@@ -2,6 +2,8 @@ package ru.linachan.yggdrasil.auth;
 
 import ru.linachan.yggdrasil.YggdrasilCore;
 
+import java.util.List;
+
 public abstract class YggdrasilAuthBackend {
 
     protected YggdrasilCore core;
@@ -18,6 +20,8 @@ public abstract class YggdrasilAuthBackend {
     protected abstract YggdrasilAuthUser getUser(String userName);
 
     protected abstract boolean updateUser(YggdrasilAuthUser user);
+
+    protected abstract List<YggdrasilAuthUser> listUsers();
 
     public abstract void shutdown();
 }

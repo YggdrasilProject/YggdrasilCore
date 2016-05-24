@@ -22,9 +22,13 @@ public abstract class YggdrasilShellCommand implements Command, Runnable, Interr
 
     protected YggdrasilCore core;
 
-    protected InputStreamReader input;
-    protected OutputStreamWriter output;
-    protected OutputStreamWriter error;
+    protected InputStream input;
+    protected OutputStream output;
+    protected OutputStream error;
+
+    protected InputStreamReader inputReader;
+    protected OutputStreamWriter outputWriter;
+    protected OutputStreamWriter errorWriter;
 
     protected ConsoleUtils console;
 
@@ -44,9 +48,6 @@ public abstract class YggdrasilShellCommand implements Command, Runnable, Interr
 
     protected static Logger logger = LoggerFactory.getLogger(YggdrasilShellCommand.class);
 
-    public static String commandName = null;
-    public static String commandDescription = null;
-
     public void setUpCommand(
         YggdrasilCore yggdrasilCore,
         YggdrasilShellCommandManager cmdManager,
@@ -63,17 +64,20 @@ public abstract class YggdrasilShellCommand implements Command, Runnable, Interr
 
     @Override
     public void setInputStream(InputStream inputStream) {
-        input = new InputStreamReader(inputStream);
+        input = inputStream;
+        inputReader = new InputStreamReader(inputStream);
     }
 
     @Override
     public void setOutputStream(OutputStream outputStream) {
-        output = new OutputStreamWriter(outputStream);
+        output = outputStream;
+        outputWriter = new OutputStreamWriter(outputStream);
     }
 
     @Override
     public void setErrorStream(OutputStream errorStream) {
-        error = new OutputStreamWriter(errorStream);
+        error = errorStream;
+        errorWriter = new OutputStreamWriter(errorStream);
     }
 
     @Override
@@ -154,8 +158,10 @@ public abstract class YggdrasilShellCommand implements Command, Runnable, Interr
                 handler.invoke(this);
             } catch (NoSuchMethodException e) {
                 console.writeLine("Unknown method: %s", methodName);
-            } catch (InvocationTargetException | IllegalAccessException e) {
-                console.writeLine("Unable to perform action '%s': %s", methodName, e.getMessage());
+            } catch (InvocationTargetException e) {
+                console.writeException(e.getTargetException());
+            } catch (IllegalAccessException e) {
+                console.writeLine("Unable to perform action '%s': %s", methodName, e.getClass().getSimpleName(), e.getMessage());
             }
         } else {
             try {

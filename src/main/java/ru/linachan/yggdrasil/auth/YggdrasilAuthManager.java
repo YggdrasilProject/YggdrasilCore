@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 import ru.linachan.yggdrasil.YggdrasilCore;
 import ru.linachan.yggdrasil.auth.backend.LocalAuthBackend;
 
+import java.util.List;
+
 public class YggdrasilAuthManager {
 
     private YggdrasilCore core;
@@ -50,5 +52,9 @@ public class YggdrasilAuthManager {
 
     public boolean updateUser(YggdrasilAuthUser user) {
         return core.getManager(YggdrasilAuthBackendManager.class).get(authBackend).updateUser(user);
+    }
+
+    public List<YggdrasilAuthUser> listUsers() {
+        return core.getManager(YggdrasilAuthBackendManager.class).get(authBackend).listUsers();
     }
 }

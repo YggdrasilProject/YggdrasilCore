@@ -2,9 +2,7 @@ package ru.linachan.yggdrasil.storage;
 
 import java.io.*;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Semaphore;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -174,6 +172,10 @@ public class YggdrasilStorageFile {
         if (hasKey(key)) {
             storageMap.remove(key);
         }
+    }
+
+    public Set<String> listKeys() {
+        return storageMap.keySet();
     }
 
     public byte[] getBytes(String key) {
