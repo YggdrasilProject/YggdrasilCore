@@ -50,4 +50,14 @@ public class YggdrasilAuthUser implements Serializable {
 
         setAttribute("publicKey", authorizedKeys);
     }
+
+    @SuppressWarnings("unchecked")
+    public void deletePublicKey(int keyIndex) {
+        List<String> authorizedKeys = (List<String>) getAttribute("publicKey");
+        authorizedKeys = (authorizedKeys != null) ? authorizedKeys : new ArrayList<>();
+
+        authorizedKeys.remove(keyIndex - 1);
+
+        setAttribute("publicKey", authorizedKeys);
+    }
 }
