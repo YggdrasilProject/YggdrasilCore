@@ -10,6 +10,9 @@ import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -67,7 +70,18 @@ public class YggdrasilShellService extends YggdrasilService {
             YggdrasilAuthUser authUser = core.getAuthManager().getUser(userName);
 
             if (authUser != null) {
-                return passWord.equals(authUser.getAttribute("passWord"));
+                MessageDigest md = null;
+                try {
+                    md = MessageDigest.getInstance("SHA-256");
+                    md.update(passWord.getBytes("UTF-8"));
+                    byte[] digest = md.digest();
+                    return String.format("%064x", new java.math.BigInteger(1, digest))
+                        .equals(authUser.getAttribute("passWord"));
+                } catch (UnsupportedEncodingException | NoSuchAlgorithmException e) {
+                    logger.error("Unable to calculate SHA-256: {}", e.getMessage());
+                }
+
+                return false;
             } else if (core.getConfig().getString("yggdrasil.admin.user", "yggdrasil").equals(userName)) {
                 authUser = core.getAuthManager().registerUser(userName);
                 authUser.setAttribute("passWord", passWord);

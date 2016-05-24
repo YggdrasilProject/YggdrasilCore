@@ -1,8 +1,12 @@
 package ru.linachan.yggdrasil.auth;
 
+import ru.linachan.yggdrasil.common.SSHUtils;
+
+import java.io.IOException;
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
+import java.security.GeneralSecurityException;
+import java.security.PublicKey;
+import java.util.*;
 
 public class YggdrasilAuthUser implements Serializable {
 
@@ -24,5 +28,26 @@ public class YggdrasilAuthUser implements Serializable {
 
     public void setAttribute(String attribute, Object value) {
         attributes.put(attribute, value);
+    }
+
+    public Set<String> listAttributes() {
+        return attributes.keySet();
+    }
+
+    @SuppressWarnings("unchecked")
+    public void addPublicKey(String publicKeyString) throws GeneralSecurityException, IOException {
+        String[] rawPublicKey = publicKeyString.split(" ");
+
+        PublicKey publicKey = SSHUtils.readPublicKey(Base64.getDecoder().decode(rawPublicKey[1]));
+
+        List<String> authorizedKeys = (List<String>) getAttribute("publicKey");
+        authorizedKeys = (authorizedKeys != null) ? authorizedKeys : new ArrayList<>();
+
+        String publicKeyData = new String(Base64.getEncoder().encode(publicKey.getEncoded()));
+        if (!authorizedKeys.contains(publicKeyData)) {
+            authorizedKeys.add(publicKeyData);
+        }
+
+        setAttribute("publicKey", authorizedKeys);
     }
 }

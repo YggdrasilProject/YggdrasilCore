@@ -8,6 +8,8 @@ import ru.linachan.yggdrasil.shell.YggdrasilShellCommand;
 import ru.linachan.yggdrasil.shell.helpers.ShellCommand;
 
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +21,7 @@ public class PasswordCommand extends YggdrasilShellCommand {
     @Override
     protected void init() throws IOException {}
 
-    public void execute() throws IOException {
+    public void execute() throws IOException, NoSuchAlgorithmException {
         console.setBright(true);
 
         while (isChanging) {
@@ -30,7 +32,12 @@ public class PasswordCommand extends YggdrasilShellCommand {
             if (newPassword.equals(passwordConfirmation)) {
                 if (console.readYesNo("Save this password?")) {
                     YggdrasilAuthUser user = core.getAuthManager().getUser(getEnvironment().getEnv().get("USER"));
-                    user.setAttribute("passWord", newPassword);
+
+                    MessageDigest md = MessageDigest.getInstance("SHA-256");
+                    md.update(newPassword.getBytes("UTF-8"));
+                    byte[] digest = md.digest();
+
+                    user.setAttribute("passWord", String.format("%064x", new java.math.BigInteger(1, digest)));
                     core.getAuthManager().updateUser(user);
 
                     console.setTextColor(ConsoleColor.GREEN);
