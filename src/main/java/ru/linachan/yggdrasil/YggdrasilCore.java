@@ -38,8 +38,8 @@ public class YggdrasilCore {
 
     private final YggdrasilAuthManager authManager;
 
-    private final Map<Class<? extends YggdrasilGenericManager>, YggdrasilGenericManager> genericManagers;
-    private final Map<String, YggdrasilQueue> queueMap;
+    private final Map<Class<? extends YggdrasilGenericManager<?>>, YggdrasilGenericManager<?>> genericManagers;
+    private final Map<String, YggdrasilQueue<?>> queueMap;
 
     private final Logger logger = LoggerFactory.getLogger(YggdrasilCore.class);
 
@@ -177,7 +177,7 @@ public class YggdrasilCore {
         return authManager;
     }
 
-    public <T extends YggdrasilGenericManager> void registerManager(Class<T> manager) {
+    public <T extends YggdrasilGenericManager<?>> void registerManager(Class<T> manager) {
         try {
             YggdrasilGenericManager managerInstance = manager.newInstance();
             genericManagers.put(manager, managerInstance);
@@ -187,14 +187,14 @@ public class YggdrasilCore {
         }
     }
 
-    public <T extends YggdrasilGenericManager> void shutdownManager(Class<T> manager) {
+    public <T extends YggdrasilGenericManager<?>> void shutdownManager(Class<T> manager) {
         if (genericManagers.containsKey(manager)) {
             genericManagers.get(manager).shutdown();
             genericManagers.remove(manager);
         }
     }
 
-    public <T extends YggdrasilGenericManager> T getManager(Class<T> manager) {
+    public <T extends YggdrasilGenericManager<?>> T getManager(Class<T> manager) {
         if (genericManagers.containsKey(manager)) {
             return manager.cast(genericManagers.get(manager));
         }
@@ -211,7 +211,7 @@ public class YggdrasilCore {
         return false;
     }
 
-    public YggdrasilQueue getQueue(String queueName) {
+    public YggdrasilQueue<?> getQueue(String queueName) {
         return queueMap.getOrDefault(queueName, null);
     }
 

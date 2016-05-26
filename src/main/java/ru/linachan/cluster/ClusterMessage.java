@@ -24,7 +24,7 @@ public class ClusterMessage {
         this.messageData = messageData;
     }
 
-    public ClusterMessage(Map messageData) {
+    public ClusterMessage(Map<?,?> messageData) {
         this.messageData = new JSONObject(messageData);
     }
 
