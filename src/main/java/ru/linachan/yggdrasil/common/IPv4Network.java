@@ -49,7 +49,7 @@ public class IPv4Network {
     }
 
     public InetAddress getRandomAddress() {
-        long addressOffset = randomGenerator.nextLong() % Math.round(Math.pow(2, 32 - netMaskBits));
+        long addressOffset = Math.abs(randomGenerator.nextLong()) % (Math.round(Math.pow(2, 32 - netMaskBits)) - 1);
 
         try {
             return InetAddress.getByName(long2ip(networkAddress + addressOffset));

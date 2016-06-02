@@ -20,6 +20,19 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <distributionManagement>
+        <repository>
+            <id>yggdrasil-core</id>
+            <name>Internal Release Repository</name>
+            <url>https://mvn.lina-infra.ru/repository/yggdrasil-core/</url>
+        </repository>
+        <snapshotRepository>
+            <id>yggdrasil-core</id>
+            <name>Internal Snapshot Repository</name>
+            <url>https://mvn.lina-infra.ru/repository/yggdrasil-core/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
     <dependencies>
         <dependency>
             <groupId>com.googlecode.json-simple</groupId>
