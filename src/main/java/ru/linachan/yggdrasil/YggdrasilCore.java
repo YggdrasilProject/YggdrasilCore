@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import ru.linachan.yggdrasil.auth.YggdrasilAuthBackendManager;
 import ru.linachan.yggdrasil.auth.YggdrasilAuthManager;
+import ru.linachan.yggdrasil.common.ClassPathHelper;
 import ru.linachan.yggdrasil.common.console.CommandLineUtils;
 import ru.linachan.yggdrasil.plugin.YggdrasilPluginManager;
 
@@ -49,6 +50,8 @@ public class YggdrasilCore {
     public YggdrasilCore(String configFile) throws IOException {
         config = YggdrasilConfig.readConfig(new File(configFile));
 
+        loadPlugins();
+
         discoveryHelper = new Reflections(
             ClasspathHelper.forPackage("ru.linachan"),
             new SubTypesScanner()
@@ -72,6 +75,40 @@ public class YggdrasilCore {
 
 
         registerShutdownHook();
+    }
+
+    private void loadPlugins() {
+        String pluginFolderPath = config.getString("yggdrasil.plugins.path", "plugins");
+        File pluginFolder = new File(pluginFolderPath);
+
+        if (pluginFolder.exists()&&pluginFolder.isDirectory()) {
+            File rawPluginFolder = new File(pluginFolder, "raw");
+            if (rawPluginFolder.exists()&&rawPluginFolder.isDirectory()) {
+                try {
+                    ClassPathHelper.addFile(rawPluginFolder);
+                } catch (IOException e) {
+                    logger.error(
+                        "Unable to load raw plugins: [{}] {}",
+                        e.getClass().getSimpleName(), e.getMessage()
+                    );
+                }
+            }
+
+            File[] pluginFiles = pluginFolder.listFiles();
+            if ((pluginFiles != null)&&(pluginFiles.length > 0)) {
+                for (File pluginFile: pluginFiles) {
+                    try {
+                        ClassPathHelper.addFile(pluginFile);
+                    } catch (IOException e) {
+                        logger.error(
+                            "Unable to load plugin {}: [{}] {}",
+                            pluginFile.getAbsolutePath(),
+                            e.getClass().getSimpleName(), e.getMessage()
+                        );
+                    }
+                }
+            }
+        }
     }
 
     public void enablePackage(String packageName) {
