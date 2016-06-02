@@ -1,0 +1,9 @@
+Code-Review+2: Alexey Deryugin <aderyugin@mirantis.com>
+Workflow+1: Alexey Deryugin <aderyugin@mirantis.com>
+Quality-Assurance+1: Nemesis CI <nemesis@lina-infra.ru>
+Verified+2: Nemesis CI <nemesis@lina-infra.ru>
+Submitted-by: Nemesis CI <nemesis@lina-infra.ru>
+Submitted-at: Fri, 03 Jun 2016 00:52:23 +0300
+Reviewed-on: https://review.lina-infra.ru/176
+Project: yggdrasilProject/yggdrasilCore
+Branch: refs/heads/master
