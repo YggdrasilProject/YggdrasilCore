@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.linachan.rpc.*;
 import ru.linachan.yggdrasil.plugin.YggdrasilPluginManager;
-import ru.linachan.yggdrasil.plugin.helpers.AutoStart;
 import ru.linachan.yggdrasil.plugin.helpers.DependsOn;
 import ru.linachan.yggdrasil.plugin.YggdrasilPlugin;
 import ru.linachan.yggdrasil.plugin.helpers.Plugin;
@@ -29,7 +28,7 @@ public class ClusterPlugin extends YggdrasilPlugin implements RPCService, RPCCal
     private RPCClient clusterClient;
     private UUID nodeUUID = UUID.randomUUID();
 
-    private List<ClusterNode> nodes = new ArrayList<>();
+    private List<RPCNode> nodes = new ArrayList<>();
 
     private Logger logger = LoggerFactory.getLogger(ClusterPlugin.class);
 
@@ -55,7 +54,7 @@ public class ClusterPlugin extends YggdrasilPlugin implements RPCService, RPCCal
             @Override
             public void run() {
                 try {
-                    ClusterMessage discoveryRequest = new ClusterMessage();
+                    RPCMessage discoveryRequest = new RPCMessage();
                     discoveryRequest.setData("action", "discover");
                     discoveryRequest.setData("nodeUUID", nodeUUID.toString());
                     clusterClient.call(CLUSTER_EXCHANGE, "discover", discoveryRequest.toJSON(), core.getManager(
@@ -74,7 +73,7 @@ public class ClusterPlugin extends YggdrasilPlugin implements RPCService, RPCCal
             @Override
             public void run() {
                 nodes.stream()
-                    .filter(ClusterNode::isExpired)
+                    .filter(RPCNode::isExpired)
                     .collect(Collectors.toList()).stream()
                     .forEach(node -> {
                         nodes.remove(node);
@@ -97,9 +96,10 @@ public class ClusterPlugin extends YggdrasilPlugin implements RPCService, RPCCal
         }
     }
 
+    @Override
     @SuppressWarnings("unchecked")
-    private ClusterMessage handleRequest(ClusterMessage request) {
-        ClusterMessage response = new ClusterMessage();
+    public RPCMessage dispatch(RPCMessage request) {
+        RPCMessage response = new RPCMessage();
         if (request.getData().getOrDefault("node", nodeUUID.toString()).equals(nodeUUID.toString())) {
             String action = (String) request.getData().getOrDefault("action", "");
             switch (action) {
@@ -122,40 +122,23 @@ public class ClusterPlugin extends YggdrasilPlugin implements RPCService, RPCCal
     }
 
     @Override
-    public String dispatch(String message) {
-        try {
-            ClusterMessage request = new ClusterMessage(message);
-            ClusterMessage response = handleRequest(request);
-            return ((response != null) ? response : new ClusterMessage()).toJSON();
-        } catch (ParseException e) {
-            logger.error("Unable to parse RPC request: {}", e.getMessage());
-            return new ClusterMessage(e).toJSON();
-        }
-    }
+    public void callback(RPCMessage message) {
+        String nodeUUID = (String) message.getData("nodeUUID", null);
+        if (nodeUUID != null) {
+            Optional<RPCNode> clusterNodeOptional = nodes.stream()
+                .filter(node -> node.getNodeUUID().equals(UUID.fromString(nodeUUID)))
+                .findFirst();
 
-    @Override
-    public void callback(String message) {
-        try {
-            ClusterMessage callbackData = new ClusterMessage(message);
-            String nodeUUID = (String) callbackData.getData("nodeUUID", null);
-            if (nodeUUID != null) {
-                Optional<ClusterNode> clusterNodeOptional = nodes.stream()
-                    .filter(node -> node.getNodeUUID().equals(UUID.fromString(nodeUUID)))
-                    .findFirst();
-
-                if (clusterNodeOptional.isPresent()) {
-                    clusterNodeOptional.get().update();
-                } else {
-                    logger.info("New node discovered: {}", nodeUUID);
-                    nodes.add(new ClusterNode(nodeUUID));
-                }
+            if (clusterNodeOptional.isPresent()) {
+                clusterNodeOptional.get().update();
+            } else {
+                logger.info("New node discovered: {}", nodeUUID);
+                nodes.add(new RPCNode(nodeUUID));
             }
-        } catch (ParseException e) {
-            logger.error("Unable to parse RPC request: {}", e.getMessage());
         }
     }
 
-    public List<ClusterNode> getNodes() {
+    public List<RPCNode> getNodes() {
         return nodes;
     }
 }

@@ -1,4 +1,4 @@
-package ru.linachan.cluster;
+package ru.linachan.rpc;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -6,30 +6,30 @@ import org.json.simple.parser.ParseException;
 
 import java.util.Map;
 
-public class ClusterMessage {
+public class RPCMessage {
 
     private JSONObject messageData;
 
     @SuppressWarnings("unchecked")
-    public ClusterMessage() {
+    public RPCMessage() {
         this.messageData = new JSONObject();
         this.messageData.put("status", "ok");
     }
 
-    public ClusterMessage(String messageData) throws ParseException {
+    public RPCMessage(String messageData) throws ParseException {
         this.messageData = (JSONObject) new JSONParser().parse(messageData);
     }
 
-    public ClusterMessage(JSONObject messageData) {
+    public RPCMessage(JSONObject messageData) {
         this.messageData = messageData;
     }
 
-    public ClusterMessage(Map<?,?> messageData) {
+    public RPCMessage(Map<?,?> messageData) {
         this.messageData = new JSONObject(messageData);
     }
 
     @SuppressWarnings("unchecked")
-    public ClusterMessage(Throwable exception) {
+    public RPCMessage(Throwable exception) {
         this.messageData = new JSONObject();
         this.messageData.put("status", "error");
         this.messageData.put("errorType", exception.getClass().getSimpleName());

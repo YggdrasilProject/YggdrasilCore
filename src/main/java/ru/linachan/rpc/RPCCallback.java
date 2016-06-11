@@ -2,5 +2,5 @@ package ru.linachan.rpc;
 
 public interface RPCCallback {
 
-    void callback(String message);
+    void callback(RPCMessage request);
 }

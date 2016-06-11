@@ -1,16 +1,21 @@
-package ru.linachan.cluster;
+package ru.linachan.rpc;
 
 import java.util.UUID;
 
-public class ClusterNode {
+public class RPCNode {
 
     private UUID nodeUUID;
     private Long lastSeen;
 
     private final Long EXPIRATION_TIME = 60000L;
 
-    public ClusterNode(String nodeUUID) {
+    public RPCNode(String nodeUUID) {
         this.nodeUUID = UUID.fromString(nodeUUID);
+        this.lastSeen = System.currentTimeMillis();
+    }
+
+    public RPCNode(UUID nodeUUID) {
+        this.nodeUUID = nodeUUID;
         this.lastSeen = System.currentTimeMillis();
     }
 
