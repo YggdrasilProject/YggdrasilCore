@@ -1,6 +1,7 @@
 package ru.linachan.rpc;
 
 import com.rabbitmq.client.*;
+import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,14 +64,14 @@ public class RPCServer implements Runnable {
                     .correlationId(props.getCorrelationId())
                     .build();
 
-                String message = new String(delivery.getBody());
+                RPCMessage message = new RPCMessage(new String(delivery.getBody()));
 
-                String response = service.dispatch(message);
+                RPCMessage response = service.dispatch(message);
 
-                channel.basicPublish("", props.getReplyTo(), replyProps, response.getBytes());
+                channel.basicPublish("", props.getReplyTo(), replyProps, response.toJSON().getBytes());
 
                 channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
-            } catch (IOException e) {
+            } catch (IOException | ParseException e) {
                 logger.error("Unable to process RPC call: {}", e.getMessage());
             } catch (ShutdownSignalException | InterruptedException ignored) {}
         }

@@ -1,6 +1,7 @@
 package ru.linachan.rpc;
 
 import com.rabbitmq.client.*;
+import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,12 +60,13 @@ public class RPCClient implements Runnable {
             try {
                 QueueingConsumer.Delivery delivery = consumer.nextDelivery();
                 if (callbackMap.containsKey(delivery.getProperties().getCorrelationId())) {
-                    callbackMap.get(delivery.getProperties().getCorrelationId()).callback(new String(delivery.getBody()));
+                    callbackMap.get(delivery.getProperties().getCorrelationId())
+                        .callback(new RPCMessage(new String(delivery.getBody())));
                 }
             } catch (ShutdownSignalException | ConsumerCancelledException e) {
                 isRunning = false;
                 break;
-            } catch (InterruptedException e) {
+            } catch (ParseException | InterruptedException e) {
                 logger.error("Unable to handle RPC message: {}", e.getMessage());
             }
 
