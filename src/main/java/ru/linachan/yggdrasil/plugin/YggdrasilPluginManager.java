@@ -4,10 +4,8 @@ package ru.linachan.yggdrasil.plugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.linachan.yggdrasil.YggdrasilGenericManager;
-import ru.linachan.yggdrasil.plugin.helpers.AutoStart;
-import ru.linachan.yggdrasil.plugin.helpers.Dependencies;
-import ru.linachan.yggdrasil.plugin.helpers.DependsOn;
-import ru.linachan.yggdrasil.plugin.helpers.Plugin;
+import ru.linachan.yggdrasil.common.SystemInfo;
+import ru.linachan.yggdrasil.plugin.helpers.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,39 +23,78 @@ public class YggdrasilPluginManager extends YggdrasilGenericManager<YggdrasilPlu
 
     @Override
     protected void onDiscover(Class<? extends YggdrasilPlugin> discoveredObject) {
-        logger.info("Plugin discovered: {}", discoveredObject.getSimpleName());
-        if (discoveredObject.isAnnotationPresent(AutoStart.class)||core.getConfig().getList("yggdrasil.auto_start", String.class).contains(discoveredObject.getSimpleName())) {
+        logger.info("Plugin discovered: {}", getPluginInfo(discoveredObject).name());
+
+        if (discoveredObject.isAnnotationPresent(AutoStart.class)||core.getConfig().getList("yggdrasil.auto_start", String.class).contains(getPluginInfo(discoveredObject).name())) {
             autoStartQueue.add(discoveredObject);
         }
     }
 
     @Override
     protected void onCleanup(Class<? extends YggdrasilPlugin> managedObject) {
-        logger.info("Plugin shutdown: {}", managedObject.getSimpleName());
+        logger.info("Plugin shutdown: {}", getPluginInfo(managedObject).name());
     }
 
     @Override
     protected void onEnable(Class<? extends YggdrasilPlugin> enabledObject) {
-        logger.info("Plugin enabled: {}", enabledObject.getSimpleName());
+        if (checkOSDependencies(enabledObject)) {
+            if (checkDependencies(enabledObject)) {
+                try {
+                    YggdrasilPlugin pluginInstance = enabledObject.newInstance();
+                    pluginInstance.onPluginInit(core);
+                    put(enabledObject, pluginInstance);
 
-        checkDependencies(enabledObject);
-
-        try {
-            YggdrasilPlugin pluginInstance = enabledObject.newInstance();
-            pluginInstance.onPluginInit(core);
-            put(enabledObject, pluginInstance);
-        } catch (InstantiationException | IllegalAccessException e) {
-            logger.error("Unable to instantiate plugin");
+                    logger.info("Plugin enabled: {}", getPluginInfo(enabledObject).name());
+                } catch (InstantiationException | IllegalAccessException e) {
+                    logger.error("Unable to instantiate plugin {}", getPluginInfo(enabledObject).name());
+                }
+            } else {
+                logger.warn(
+                    "Dependency resolution failed for {}",
+                    getPluginInfo(enabledObject).name()
+                );
+                core.disablePackage(enabledObject.getPackage().getName().split("\\.")[2]);
+            }
+        } else {
+            logger.warn(
+                "Plugin {} doesn't support {} {} OS. Disabling.",
+                getPluginInfo(enabledObject).name(),
+                SystemInfo.getOSType(), SystemInfo.getOSArch()
+            );
+            core.disablePackage(enabledObject.getPackage().getName().split("\\.")[2]);
         }
     }
 
-    private void checkDependencies(Class<? extends YggdrasilPlugin> plugin) {
-        for (DependsOn dependency : plugin.getAnnotationsByType(DependsOn.class)) {
-            logger.info("{} -> {}", plugin.getSimpleName(), dependency.value().getSimpleName());
-            if (!isEnabled(dependency.value())) {
-                enable(dependency.value());
-            }
+    private boolean checkOSDependencies(Class<? extends YggdrasilPlugin> plugin) {
+        SystemInfo.OSType osType = SystemInfo.getOSType();
+        SystemInfo.OSArch osArch = SystemInfo.getOSArch();
+
+        boolean hasDependency = false;
+        boolean compatible = false;
+
+        for (OSSupport os : plugin.getAnnotationsByType(OSSupport.class)) {
+            hasDependency = true;
+            compatible = compatible || ((
+                os.arch().equals(SystemInfo.OSArch.ALL) || os.arch().equals(osArch)
+            ) && (
+                os.value().equals(SystemInfo.OSType.ALL) || os.value().equals(osType)
+            ));
         }
+
+        return !hasDependency || compatible;
+    }
+
+    private boolean checkDependencies(Class<? extends YggdrasilPlugin> plugin) {
+        for (DependsOn dependency : plugin.getAnnotationsByType(DependsOn.class)) {
+            logger.info("{} -> {}", getPluginInfo(plugin).name(), getPluginInfo(dependency.value()).name());
+            if (!isEnabled(dependency.value()))
+                enable(dependency.value());
+
+            if (!isEnabled(dependency.value()))
+                return false;
+        }
+
+        return true;
     }
 
     @Override
@@ -105,7 +142,7 @@ public class YggdrasilPluginManager extends YggdrasilGenericManager<YggdrasilPlu
 
     private void autoStart() {
         for (Class<? extends YggdrasilPlugin> autoStartPlugin: autoStartQueue) {
-            logger.info("Auto-starting plugin: {}", autoStartPlugin.getSimpleName());
+            logger.info("Auto-starting plugin: {}", getPluginInfo(autoStartPlugin).name());
             enable(autoStartPlugin);
         }
 
