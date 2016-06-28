@@ -22,10 +22,7 @@ public class PasswordCommand extends YggdrasilShellCommand {
     protected void init() throws IOException {}
 
     public void execute() throws IOException, NoSuchAlgorithmException {
-        console.setBright(true);
-
         while (isChanging) {
-            console.setTextColor(ConsoleColor.WHITE);
             String newPassword = console.readPassword("Enter password: ");
             String passwordConfirmation = console.readPassword("Confirm password: ");
 
@@ -40,22 +37,16 @@ public class PasswordCommand extends YggdrasilShellCommand {
                     user.setAttribute("passWord", String.format("%064x", new java.math.BigInteger(1, digest)));
                     core.getAuthManager().updateUser(user);
 
-                    console.setTextColor(ConsoleColor.GREEN);
                     console.writeLine("Password changed");
-                    console.setTextColor(null);
                 } else {
-                    console.setTextColor(ConsoleColor.RED);
                     console.writeLine("Canceled");
-                    console.setTextColor(null);
 
                     exit(1);
                 }
 
                 isChanging = false;
             } else {
-                console.setTextColor(ConsoleColor.RED);
                 console.writeLine("Password mismatch");
-                console.setTextColor(null);
             }
         }
     }

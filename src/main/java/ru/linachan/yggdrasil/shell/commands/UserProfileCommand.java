@@ -3,7 +3,9 @@ package ru.linachan.yggdrasil.shell.commands;
 import ru.linachan.yggdrasil.auth.YggdrasilAuthManager;
 import ru.linachan.yggdrasil.auth.YggdrasilAuthUser;
 import ru.linachan.yggdrasil.common.SSHUtils;
+import ru.linachan.yggdrasil.common.console.ANSIUtils;
 import ru.linachan.yggdrasil.common.console.ConsoleColor;
+import ru.linachan.yggdrasil.common.console.ConsoleTextStyle;
 import ru.linachan.yggdrasil.shell.YggdrasilShellCommand;
 import ru.linachan.yggdrasil.shell.helpers.CommandAction;
 import ru.linachan.yggdrasil.shell.helpers.ShellCommand;
@@ -53,12 +55,12 @@ public class UserProfileCommand extends YggdrasilShellCommand {
 
     @CommandAction("Add user")
     public void add() throws IOException {
-        console.writeLine(console.format("Not implemented", ConsoleColor.RED, null, null, true));
+        console.writeLine(ANSIUtils.RenderString("Not implemented", ConsoleColor.BRIGHT_RED, ConsoleTextStyle.BOLD));
     }
 
     @CommandAction("Delete user")
     public void delete() throws IOException {
-        console.writeLine(console.format("Not implemented", ConsoleColor.RED, null, null, true));
+        console.writeLine(ANSIUtils.RenderString("Not implemented", ConsoleColor.BRIGHT_RED, ConsoleTextStyle.BOLD));
     }
 
     @CommandAction("Set SSH public key")

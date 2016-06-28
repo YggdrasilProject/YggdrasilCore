@@ -23,11 +23,6 @@ public class ConsoleUtils {
 
     private InterruptHandler interruptHandler;
 
-    private ConsoleColor textColor = null;
-    private ConsoleColor bgColor = null;
-    private ConsoleTextStyle textStyle = null;
-    private boolean isBright = false;
-
     private final Semaphore writeLock = new Semaphore(1);
 
     private List<String> autoCompleteList = new ArrayList<>();
@@ -266,18 +261,6 @@ public class ConsoleUtils {
         return "+" + Joiner.on("+").join(borders) + "+";
     }
 
-    public void setTextColor(ConsoleColor color) {
-        textColor = color;
-    }
-
-    public void setBGColor(ConsoleColor color) {
-        bgColor = color;
-    }
-
-    public void setBright(boolean bright) {
-        isBright = bright;
-    }
-
     public void writeMap(Map<?, ?> mapObject) throws IOException {
         writeMap(mapObject, null, null);
     }
@@ -358,56 +341,14 @@ public class ConsoleUtils {
 
     public void write(String format, Object... args) throws IOException {
         lock();
-        outputStreamWriter.write(
-            String.format(
-                String.format(
-                    "\033[%d;%d;%dm%s\033[0m",
-                    (textStyle != null) ? textStyle.ordinal() : 0,
-                    (bgColor != null) ? bgColor.ordinal() + ((isBright) ? 100 : 40) : 49,
-                    (textColor != null) ? textColor.ordinal() + ((isBright) ? 90 : 30) : 39,
-                    format
-                ), args
-            )
-        );
+        outputStreamWriter.write(String.format(format, args));
         outputStreamWriter.flush();
         unlock();
     }
 
-    public String format(String format, Object... args) {
-        return String.format(
-            String.format(
-                "\033[%d;%d;%dm%s\033[0m",
-                (textStyle != null) ? textStyle.ordinal() : 0,
-                (bgColor != null) ? bgColor.ordinal() + ((isBright) ? 100 : 40) : 49,
-                (textColor != null) ? textColor.ordinal() + ((isBright) ? 90 : 30) : 39,
-                format
-            ), args
-        );
-    }
-
-    public String format(String format, ConsoleColor textColor, ConsoleColor bgColor, ConsoleTextStyle textStyle, boolean isBright) {
-        return String.format(
-            "\033[%d;%d;%dm%s\033[0m",
-            (textStyle != null) ? textStyle.ordinal() : 0,
-            (bgColor != null) ? bgColor.ordinal() + ((isBright) ? 100 : 40) : 49,
-            (textColor != null) ? textColor.ordinal() + ((isBright) ? 90 : 30) : 39,
-            format
-        );
-    }
-
     public void error(String format, Object... args) throws IOException {
         lock();
-        errorStreamWriter.write(
-            String.format(
-                String.format(
-                    "\033[%d;%d;%dm%s\033[0m",
-                    (textStyle != null) ? textStyle.ordinal() : 0,
-                    (bgColor != null) ? bgColor.ordinal() + ((isBright) ? 100 : 40) : 49,
-                    (textColor != null) ? textColor.ordinal() + ((isBright) ? 90 : 30) : 39,
-                    format
-                ), args
-            )
-        );
+        errorStreamWriter.write(String.format(format, args));
         errorStreamWriter.flush();
         unlock();
     }

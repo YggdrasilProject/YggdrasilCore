@@ -5,14 +5,11 @@ import org.apache.sshd.server.Environment;
 import org.apache.sshd.server.ExitCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.linachan.yggdrasil.common.console.ConsoleColor;
-import ru.linachan.yggdrasil.common.console.InterruptHandler;
+import ru.linachan.yggdrasil.common.console.*;
 import ru.linachan.yggdrasil.shell.commands.EmptyCommand;
 import ru.linachan.yggdrasil.shell.commands.InvalidCommand;
 import ru.linachan.yggdrasil.shell.commands.UnknownCommand;
 import ru.linachan.yggdrasil.YggdrasilCore;
-import ru.linachan.yggdrasil.common.console.CommandLineUtils;
-import ru.linachan.yggdrasil.common.console.ConsoleUtils;
 
 import java.io.*;
 
@@ -73,8 +70,6 @@ public class YggdrasilShell implements Command, Runnable, ExitCallback, Interrup
         console.addCompletions(commandManager.listCommands());
         console.setInterruptHandler(this);
 
-        console.setBright(true);
-
         commandThread = new Thread(this);
         commandThread.start();
 
@@ -94,10 +89,13 @@ public class YggdrasilShell implements Command, Runnable, ExitCallback, Interrup
     public void run() {
         while (isRunning()) {
             try {
+                ConsoleColor rcColor = (subCommandExitCode == 0) ? ConsoleColor.BRIGHT_GREEN : ConsoleColor.BRIGHT_RED;
+                String userName = environment.getEnv().get("USER");
+
                 String commandLine = console.read(String.format(
-                    "%s%s",
-                    console.format(environment.getEnv().get("USER"), ConsoleColor.CYAN, null, null, true),
-                    console.format(" # ", (subCommandExitCode == 0) ? ConsoleColor.GREEN : ConsoleColor.RED, null, null, true)
+                    "%s %s ",
+                    ANSIUtils.RenderString("$$$", rcColor, ConsoleTextStyle.BOLD),
+                    ANSIUtils.RenderString(userName, ConsoleColor.BRIGHT_CYAN, ConsoleTextStyle.BOLD)
                 ));
 
                 console.addHistoryItem(commandLine);
