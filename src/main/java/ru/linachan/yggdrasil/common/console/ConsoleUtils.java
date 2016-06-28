@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Semaphore;
 import java.util.stream.Collectors;
 
 public class ConsoleUtils {
@@ -27,6 +28,8 @@ public class ConsoleUtils {
     private ConsoleTextStyle textStyle = null;
     private boolean isBright = false;
 
+    private final Semaphore writeLock = new Semaphore(1);
+
     private List<String> autoCompleteList = new ArrayList<>();
 
     private List<String> commandHistory = new ArrayList<>();
@@ -41,6 +44,16 @@ public class ConsoleUtils {
         inputStreamReader = new InputStreamReader(in);
         outputStreamWriter = new OutputStreamWriter(out);
         errorStreamWriter = new OutputStreamWriter(err);
+    }
+
+    private void lock() {
+        try {
+            writeLock.acquire();
+        } catch (InterruptedException ignored) {}
+    }
+
+    private void unlock() {
+        writeLock.release();
     }
 
     public void addCompletion(String completion) {
@@ -344,6 +357,7 @@ public class ConsoleUtils {
     }
 
     public void write(String format, Object... args) throws IOException {
+        lock();
         outputStreamWriter.write(
             String.format(
                 String.format(
@@ -356,6 +370,7 @@ public class ConsoleUtils {
             )
         );
         outputStreamWriter.flush();
+        unlock();
     }
 
     public String format(String format, Object... args) {
@@ -381,6 +396,7 @@ public class ConsoleUtils {
     }
 
     public void error(String format, Object... args) throws IOException {
+        lock();
         errorStreamWriter.write(
             String.format(
                 String.format(
@@ -393,6 +409,7 @@ public class ConsoleUtils {
             )
         );
         errorStreamWriter.flush();
+        unlock();
     }
 
     public int read(byte[] buffer) throws IOException {
@@ -400,8 +417,10 @@ public class ConsoleUtils {
     }
 
     public void write(byte[] buffer) throws IOException {
+        lock();
         outputStream.write(buffer);
         outputStream.flush();
+        unlock();
     }
 
     public int read(char[] buffer) throws IOException {
@@ -409,8 +428,10 @@ public class ConsoleUtils {
     }
 
     public void write(char[] buffer) throws IOException {
+        lock();
         outputStreamWriter.write(buffer);
         outputStreamWriter.flush();
+        unlock();
     }
 
     public void writeList(List<String> list, String header) throws IOException {
@@ -447,7 +468,7 @@ public class ConsoleUtils {
                 st.getLineNumber(),
                 st.getMethodName()
             );
-            writeLine("");
+            writeLine("    source code is hidden");
         }
         writeLine("%s: %s", exc.getClass().getSimpleName(), exc.getMessage());
     }
