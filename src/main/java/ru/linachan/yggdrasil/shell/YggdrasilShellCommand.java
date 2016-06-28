@@ -153,9 +153,15 @@ public abstract class YggdrasilShellCommand implements Command, Runnable, Interr
     private void dispatch(String methodName) throws IOException {
         if (methodName != null) {
             try {
-                Method handler = getClass().getDeclaredMethod(methodName);
+                try {
+                    Method handler = getClass().getDeclaredMethod(methodName);
 
-                handler.invoke(this);
+                    handler.invoke(this);
+                } catch (NoSuchMethodException e) {
+                    Method handler = getClass().getDeclaredMethod("execute");
+
+                    handler.invoke(this);
+                }
             } catch (NoSuchMethodException e) {
                 console.writeLine("Unknown method: %s", methodName);
             } catch (InvocationTargetException e) {
