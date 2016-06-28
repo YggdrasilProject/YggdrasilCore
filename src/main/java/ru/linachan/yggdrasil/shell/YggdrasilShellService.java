@@ -2,6 +2,7 @@ package ru.linachan.yggdrasil.shell;
 
 
 import org.apache.sshd.server.forward.RejectAllForwardingFilter;
+import org.apache.sshd.server.keyprovider.AbstractGeneratorHostKeyProvider;
 import ru.linachan.yggdrasil.auth.YggdrasilAuthUser;
 import ru.linachan.yggdrasil.service.YggdrasilService;
 
@@ -34,9 +35,13 @@ public class YggdrasilShellService extends YggdrasilService {
 
         shellServer.getProperties().put(SshServer.IDLE_TIMEOUT, 86400000L);
 
-        shellServer.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(
+        AbstractGeneratorHostKeyProvider hostKeyProvider = new SimpleGeneratorHostKeyProvider(
             new File(core.getConfig().getString("yggdrasil.ssh.key", "master.ser"))
-        ));
+        );
+
+        hostKeyProvider.setAlgorithm("RSA");
+
+        shellServer.setKeyPairProvider(hostKeyProvider);
 
         shellServer.setPublickeyAuthenticator((userName, publicKey, serverSession) -> {
             YggdrasilAuthUser authUser = core.getAuthManager().getUser(userName);
