@@ -44,6 +44,8 @@ public class UserProfileCommand extends YggdrasilShellCommand {
         Map<String, String> userAttributes = new HashMap<>();
 
         authUser.listAttributes().stream()
+            .filter(attribute -> !attribute.equals("publicKey"))
+            .filter(attribute -> !attribute.equals("passWord"))
             .forEach(attribute -> userAttributes.put(attribute, String.valueOf(authUser.getAttribute(attribute))));
 
         console.writeMap(userAttributes, "Attribute", "Value");
