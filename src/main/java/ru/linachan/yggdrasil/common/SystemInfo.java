@@ -13,7 +13,7 @@ public class SystemInfo {
     }
 
     public static File getUserHomeDirectory() {
-        return new File(System.getProperty("user.dir"));
+        return new File(System.getProperty("user.home"));
     }
 
     public static String getUserLanguage() {
