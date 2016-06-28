@@ -6,9 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class RPCServer implements Runnable {
 
@@ -16,21 +14,22 @@ public class RPCServer implements Runnable {
     private Channel channel;
     private QueueingConsumer consumer;
 
-    private RPCService service;
     private UUID queue;
 
     private List<String[]> bounds = new ArrayList<>();
+
+    private Map<String, RPCHandler> handlers = new HashMap<>();
+    private RPCHandler handler;
 
     private Thread serverThread;
     private boolean isRunning = true;
 
     private static Logger logger = LoggerFactory.getLogger(RPCServer.class);
 
-    public RPCServer(Connection rpcConnection, RPCService rpcService) throws IOException {
+    public RPCServer(Connection rpcConnection) throws IOException {
         connection = rpcConnection;
         channel = connection.createChannel();
 
-        service = rpcService;
         queue = UUID.randomUUID();
 
         channel.queueDeclare(queue.toString(), false, false, true, null);
@@ -52,6 +51,14 @@ public class RPCServer implements Runnable {
         serverThread.start();
     }
 
+    public void setHandler(String action, RPCHandler handler) {
+        this.handlers.put(action, handler);
+    }
+
+    public void setDefaultHandler(RPCHandler handler) {
+        this.handler = handler;
+    }
+
     @Override
     public void run() {
         while (isRunning) {
@@ -66,15 +73,33 @@ public class RPCServer implements Runnable {
 
                 RPCMessage message = new RPCMessage(new String(delivery.getBody()));
 
-                RPCMessage response = service.dispatch(message);
+                RPCMessage response = dispatch(message);
 
-                channel.basicPublish("", props.getReplyTo(), replyProps, response.toJSON().getBytes());
-
-                channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
+                if (response != null) {
+                    channel.basicPublish("", props.getReplyTo(), replyProps, response.toJSON().getBytes());
+                    channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
+                }
             } catch (IOException | ParseException e) {
                 logger.error("Unable to process RPC call: {}", e.getMessage());
             } catch (ShutdownSignalException | InterruptedException ignored) {}
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private RPCMessage dispatch(RPCMessage request) {
+        String action = (String) request.getData().getOrDefault("action", "");
+        RPCHandler handler = handlers.getOrDefault(action, this.handler);
+        RPCMessage response = new RPCMessage();
+
+        if (handler != null) {
+            handler.handle(request, response);
+        } else {
+            response.setData("status", "error");
+            response.setData("errorType", "UnknownAction");
+            response.setData("errorMsg", String.format("Unknown action: '%s'", action));
+        }
+
+        return response;
     }
 
     public void shutdown() throws IOException {

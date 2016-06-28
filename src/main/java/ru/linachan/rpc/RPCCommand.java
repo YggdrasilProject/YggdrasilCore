@@ -1,36 +1,31 @@
-package ru.linachan.cluster;
+package ru.linachan.rpc;
 
-import ru.linachan.rpc.*;
 import ru.linachan.yggdrasil.plugin.YggdrasilPluginManager;
 import ru.linachan.yggdrasil.shell.YggdrasilShellCommand;
 import ru.linachan.yggdrasil.shell.helpers.CommandAction;
 import ru.linachan.yggdrasil.shell.helpers.ShellCommand;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
-@ShellCommand(command = "cluster", description = "Cluster management")
-public class ClusterCommand extends YggdrasilShellCommand implements RPCCallback {
-
-    private boolean isWaiting = false;
+@ShellCommand(command = "rpc", description = "RPC cluster management")
+public class RPCCommand extends YggdrasilShellCommand implements RPCCallback {
 
     @Override
     protected void init() throws IOException {}
 
     private void rpcCall(RPCMessage message) throws IOException {
         try {
-            RPCClient clusterClient = core.getManager(YggdrasilPluginManager.class).get(RPCPlugin.class).getRPCClient();
-            clusterClient.call(ClusterPlugin.CLUSTER_EXCHANGE, "command", message.toJSON(), this);
+            RPCClient rpcClient = core.getManager(YggdrasilPluginManager.class).get(RPCPlugin.class).getRPCClient();
+            rpcClient.call(RPCPlugin.RPC_EXCHANGE, "command", message.toJSON(), this);
 
-            while (isWaiting) {
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException ignored) {}
-            }
+            Thread.sleep(2000);
 
-            clusterClient.shutdown();
+            rpcClient.shutdown();
         } catch (TimeoutException | InterruptedException e) {
             console.error("Unable to perform RPC rpcCall: {}", e.getMessage());
         }
@@ -56,13 +51,31 @@ public class ClusterCommand extends YggdrasilShellCommand implements RPCCallback
 
     @CommandAction("Show cluster status")
     public void status() throws IOException {
-        Map<String, String> hostMap = new HashMap<>();
+        List<Map<String, String>> hosts = new ArrayList<>();
+        for (RPCNode node : core.getManager(YggdrasilPluginManager.class).get(RPCPlugin.class).listNodes()) {
+            Map<String, String> host = new HashMap<>();
 
-        for (RPCNode node : core.getManager(YggdrasilPluginManager.class).get(ClusterPlugin.class).getNodes()) {
-            hostMap.put(node.getNodeUUID().toString(), String.format("%0,3f", node.getLastSeen() / 1000.0));
+            host.put("uuid", node.getNodeUUID().toString());
+            host.put("type", node.getNodeType());
+            host.put("last_seen", String.format("%0,3f", node.getLastSeen() / 1000.0));
+
+            host.put("os_name", (String) node.getNodeInfo("osName", null));
+            host.put("os_arch", (String) node.getNodeInfo("osArch", null));
+            host.put("os_version", (String) node.getNodeInfo("osVersion", null));
+
+            hosts.add(host);
         }
 
-        console.writeMap(hostMap, "Node", "Last Seen");
+        List<String> hostFields = new ArrayList<>();
+
+        hostFields.add("uuid");
+        hostFields.add("type");
+        hostFields.add("last_seen");
+        hostFields.add("os_name");
+        hostFields.add("os_arch");
+        hostFields.add("os_version");
+
+        console.writeTable(hosts, hostFields);
     }
 
     @Override
@@ -77,6 +90,5 @@ public class ClusterCommand extends YggdrasilShellCommand implements RPCCallback
         } catch (IOException e) {
             logger.error("Unable to handle response response: {}", e.getMessage());
         }
-        isWaiting = false;
     }
 }
