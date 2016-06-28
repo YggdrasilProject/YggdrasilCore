@@ -33,6 +33,7 @@ public class SCPCommand extends YggdrasilShellCommand {
             switch (op[0]) {
                 case 'T':
                     console.readLine();
+                    break;
                 case 'C':
                     String[] fileHeader = console.readLine().split(" ");
 

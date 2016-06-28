@@ -8,7 +8,7 @@ import java.net.URLClassLoader;
 
 public class ClassPathHelper {
 
-    private static final Class<?>[] parameters = new Class[] { URL.class };
+    private static final Class<?>[] parameters = new Class<?>[] { URL.class };
 
     public static void addFile(String jarFilePath) throws IOException {
         File jarFile = new File(jarFilePath);

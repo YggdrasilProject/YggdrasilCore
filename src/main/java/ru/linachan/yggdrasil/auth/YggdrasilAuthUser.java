@@ -12,6 +12,7 @@ public class YggdrasilAuthUser implements Serializable {
 
     private String userName;
     private Map<String, Object> attributes;
+    public static final long serialVersionUID = 1L;
 
     public YggdrasilAuthUser(String authUserName) {
         userName = authUserName;

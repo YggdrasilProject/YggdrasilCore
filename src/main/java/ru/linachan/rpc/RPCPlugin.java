@@ -36,6 +36,7 @@ public class RPCPlugin extends YggdrasilPlugin implements RPCCallback {
     public static final String NODE_TYPE = "controller";
 
     @Override
+    @SuppressWarnings("unchecked")
     protected void onInit() {
         rpcConnectionFactory = new ConnectionFactory();
         rpcConnectionList = new ArrayList<>();
