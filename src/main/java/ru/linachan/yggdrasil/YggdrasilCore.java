@@ -32,6 +32,7 @@ public class YggdrasilCore {
     private Reflections discoveryHelper;
 
     private final YggdrasilConfig config;
+    private final CommandLineUtils.CommandLine argv;
 
     private final YggdrasilEventSystem events;
     private final YggdrasilScheduler scheduler;
@@ -47,8 +48,11 @@ public class YggdrasilCore {
     private boolean isRunning = true;
     private boolean isReadyForShutDown = false;
 
-    public YggdrasilCore(String configFile) throws IOException {
+    public YggdrasilCore(CommandLineUtils.CommandLine args) throws IOException {
+        String configFile = args.getKeywordArgs().getOrDefault("config", "yggdrasil.ini");
+
         config = YggdrasilConfig.readConfig(new File(configFile));
+        argv = args;
 
         loadPlugins();
 
@@ -252,15 +256,16 @@ public class YggdrasilCore {
         return queueMap.getOrDefault(queueName, null);
     }
 
+    public CommandLineUtils.CommandLine getCommandLineArgs() {
+        return argv;
+    }
+
     public static void main(String[] args) throws InterruptedException, IOException {
         CommandLineUtils.CommandLine command = CommandLineUtils.parse(String.format(
             "yggdrasil %s", Joiner.on(" ").join(args)
         ));
 
-        String configFile = command.getKeywordArgs().containsKey("config") ?
-            command.getKeywordArgs().get("config") : "yggdrasil.ini";
-
-        YggdrasilCore service = new YggdrasilCore(configFile);
+        YggdrasilCore service = new YggdrasilCore(command);
 
         service.mainLoop();
     }

@@ -78,6 +78,10 @@ public class ConsoleUtils {
         return (new BufferedReader(inputStreamReader)).readLine();
     }
 
+    public String read() throws IOException {
+        return read(null, false);
+    }
+
     public String read(String query) throws IOException {
         return read(query, false);
     }
@@ -341,8 +345,10 @@ public class ConsoleUtils {
 
     public void write(String format, Object... args) throws IOException {
         lock();
-        outputStreamWriter.write(String.format(format, args));
-        outputStreamWriter.flush();
+        if (format != null) {
+            outputStreamWriter.write(String.format(format, args));
+            outputStreamWriter.flush();
+        }
         unlock();
     }
 
