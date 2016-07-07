@@ -340,7 +340,7 @@ public class ConsoleUtils {
 
 
     public void writeLine(String format, Object... args) throws IOException {
-        write(format + "\r\n", args);
+        write(format.replace("\n", "\r\n") + "\r\n", args);
     }
 
     public void write(String format, Object... args) throws IOException {
