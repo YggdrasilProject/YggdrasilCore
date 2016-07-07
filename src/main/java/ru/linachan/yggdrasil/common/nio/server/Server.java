@@ -25,11 +25,11 @@ public class Server extends AbstractServer {
     @Override
     protected void messageReceived(ByteBuffer message, SelectionKey key) {
         final ByteBuffer[] input = { message };
-        middlewareList.stream().forEach(middleware -> input[0] = middleware.decode(input[0]));
+        middlewareList.stream().forEach(middleware -> input[0] = middleware.decode(input[0], key));
 
         final ByteBuffer[] output = { handler.onMessageReceived(input[0], key) };
 
-        Lists.reverse(middlewareList).stream().forEach(middleware -> output[0] = middleware.encode(output[0]));
+        Lists.reverse(middlewareList).stream().forEach(middleware -> output[0] = middleware.encode(output[0], key));
 
         write(key, output[0].array());
     }
