@@ -41,8 +41,8 @@ public class YggdrasilPluginManager extends YggdrasilGenericManager<YggdrasilPlu
             if (checkDependencies(enabledObject)) {
                 try {
                     YggdrasilPlugin pluginInstance = enabledObject.newInstance();
-                    pluginInstance.onPluginInit(core);
                     put(enabledObject, pluginInstance);
+                    pluginInstance.onPluginInit(core);
 
                     logger.info("Plugin enabled: {}", getPluginInfo(enabledObject).name());
                 } catch (InstantiationException | IllegalAccessException e) {
