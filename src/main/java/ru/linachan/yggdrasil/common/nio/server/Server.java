@@ -29,9 +29,18 @@ public class Server extends AbstractServer {
 
         final ByteBuffer[] output = { handler.onMessageReceived(input[0], key) };
 
+        if (output[0] != null) {
+            write(key, output[0].array());
+        }
+    }
+
+    @Override
+    public void write(SelectionKey key, byte[] data) {
+        final ByteBuffer[] output = { ByteBuffer.wrap(data) };
+
         Lists.reverse(middlewareList).stream().forEach(middleware -> output[0] = middleware.encode(output[0], key));
 
-        write(key, output[0].array());
+        super.write(key, output[0].array());
     }
 
     @Override
@@ -46,9 +55,7 @@ public class Server extends AbstractServer {
 
     @Override
     protected void started(boolean alreadyStarted) {
-        if (!alreadyStarted) {
-            handler.onStart();
-        }
+        handler.onStart(alreadyStarted);
     }
 
     @Override

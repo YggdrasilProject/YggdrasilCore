@@ -1,5 +1,6 @@
 package ru.linachan.yggdrasil.common.nio;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
@@ -7,17 +8,14 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
+import java.nio.channels.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public abstract class AbstractServer implements Runnable {
 
@@ -30,6 +28,10 @@ public abstract class AbstractServer implements Runnable {
     private final MessageLength messageLength;
     private final Map<SelectionKey, ByteBuffer> readBuffers = new HashMap<>();
     private final int defaultBufferSize;
+
+    private boolean keepAlive = false;
+
+    private static Logger logger = LoggerFactory.getLogger(AbstractServer.class);
 
     protected AbstractServer(int port) {
         this(port, new TwoByteMessageLength(), DEFAULT_MESSAGE_SIZE);
@@ -61,61 +63,107 @@ public abstract class AbstractServer implements Runnable {
         return state.get() == State.STOPPED;
     }
 
+    @Override
     public void run() {
-        // ensure that the server is not started twice
-        if (!state.compareAndSet(State.STOPPED, State.RUNNING)) {
-            started(true);
-            return;
-        }
+        while (keepAlive) {
+            // ensure that the server is not started twice
+            if (!state.compareAndSet(State.STOPPED, State.RUNNING)) {
+                started(true);
+                return;
+            }
 
-        Selector selector = null;
-        ServerSocketChannel server = null;
-        try {
-            selector = Selector.open();
-            server = ServerSocketChannel.open();
-            server.socket().bind(new InetSocketAddress(port));
-            server.configureBlocking(false);
-            server.register(selector, SelectionKey.OP_ACCEPT);
-            started(false);
+            Selector selector;
+            ServerSocketChannel server;
+            SelectionKey serverKey;
+
+            try {
+                selector = Selector.open();
+
+                server = ServerSocketChannel.open();
+                server.socket().bind(new InetSocketAddress(port));
+                server.configureBlocking(false);
+                serverKey = server.register(selector, SelectionKey.OP_ACCEPT);
+
+                started(false);
+            } catch (IOException e) {
+                logger.error("Unable to initialize server: {}", e.getMessage());
+                break;
+            }
+
+            List<SelectionKey> closedKeys = new CopyOnWriteArrayList<>();
+
             while (state.get() == State.RUNNING) {
-                selector.select(100); // check every 100ms whether the server has been requested to stop
-                for (Iterator<SelectionKey> i = selector.selectedKeys().iterator(); i.hasNext();) {
+                if (!serverKey.isValid()) {
+                    logger.error("server channel is not readable!");
+                    break;
+                }
+
+                try {
+                    selector.select(100);
+                } catch (IOException e) {
+                    logger.error("Selector failure: {}", e.getMessage());
+                }
+
+                for (Iterator<SelectionKey> i = selector.selectedKeys().iterator(); i.hasNext(); ) {
                     SelectionKey key = i.next();
+
                     try {
                         i.remove();
+
                         if (key.isConnectable()) {
-                            ((SocketChannel) key.channel()).finishConnect();
+                            try {
+                                ((SocketChannel) key.channel()).finishConnect();
+                            } catch (CancelledKeyException e) {
+                                logger.error("Unable to properly finalize connection: {}", e.getMessage());
+                            }
                         }
+
                         if (key.isAcceptable()) {
                             // accept connection
                             SocketChannel client = server.accept();
+
                             client.configureBlocking(false);
                             client.socket().setTcpNoDelay(true);
+
                             connection(client.register(selector, SelectionKey.OP_READ));
                         }
+
                         if (key.isReadable()) {
-                            for (ByteBuffer message: readIncomingMessage(key)) {
-                                messageReceived(message, key);
+                            for (ByteBuffer message : readIncomingMessage(key)) {
+                                try {
+                                    messageReceived(message, key);
+                                } catch (Exception e) {
+                                    logger.error("Unable to properly handle message: [{}]: {}", e.getClass().getSimpleName(), e.getMessage());
+                                    logger.error("Shit happens!", e);
+                                }
                             }
                         }
                     } catch (IOException ioe) {
-                        resetKey(key);
-                        disconnected(key);
+                        logger.error("Unable to process request: {}", ioe.getMessage());
+                        closedKeys.add(key);
                     }
                 }
+
+                closedKeys.stream().forEach(key -> {
+                    resetKey(key);
+                    disconnected(key);
+                });
+                closedKeys.clear();
             }
-        } catch (Throwable e) {
-            LoggerFactory.getLogger(AbstractServer.class).error("Server failure: {}", e);
-            throw new RuntimeException(e);
-        } finally {
+
+            logger.info("Leaving server main loop...");
+
             try {
                 selector.close();
+
                 server.socket().close();
                 server.close();
+
                 state.set(State.STOPPED);
+
                 stopped();
-            } catch (Exception e) {
-                // do nothing - server failed
+            } catch (IOException e) {
+                logger.error("Unable correctly shutdown server: {}", e.getMessage());
             }
         }
     }
@@ -222,6 +270,10 @@ public abstract class AbstractServer implements Runnable {
         readBuffer.position(0);
         readBuffer.limit(remaining);
         return ByteBuffer.wrap(resultMessage);
+    }
+
+    public void setKeepAlive(boolean keepAlive) {
+        this.keepAlive = keepAlive;
     }
 
     protected abstract void messageReceived(ByteBuffer message, SelectionKey key);

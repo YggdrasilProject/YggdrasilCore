@@ -11,7 +11,7 @@ public interface ServerHandler {
 
     void onDisconnect(SelectionKey key);
 
-    void onStart();
+    void onStart(boolean isRestarting);
 
     void onStop();
 }
