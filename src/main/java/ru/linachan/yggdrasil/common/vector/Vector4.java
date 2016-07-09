@@ -45,4 +45,23 @@ public class Vector4<X, Y, Z, W> {
     public void setW(W w) {
         this.w = w;
     }
+
+    @Override
+    public int hashCode() {
+        return x.hashCode() + y.hashCode() + z.hashCode() + w.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object target){
+        if (target == null) return false;
+        if (target == this) return true;
+        if (!(target instanceof Vector4<?,?,?,?>)) return false;
+
+        return x.equals(((Vector4) target).getX()) && y.equals(((Vector4) target).getY()) && z.equals(((Vector4) target).getZ()) && w.equals(((Vector4) target).getW());
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Vector4(%s, %s, %s, %s)", x, y, z, w);
+    }
 }
