@@ -21,7 +21,7 @@ import ru.linachan.yggdrasil.plugin.YggdrasilPluginManager;
 import ru.linachan.yggdrasil.event.YggdrasilEvent;
 import ru.linachan.yggdrasil.event.YggdrasilEventSystem;
 import ru.linachan.yggdrasil.notification.YggdrasilNotificationManager;
-import ru.linachan.yggdrasil.queue.YggdrasilQueue;
+import ru.linachan.yggdrasil.common.Queue;
 import ru.linachan.yggdrasil.scheduler.YggdrasilScheduler;
 import ru.linachan.yggdrasil.service.YggdrasilServiceManager;
 import ru.linachan.yggdrasil.storage.YggdrasilStorage;
@@ -38,15 +38,17 @@ public class YggdrasilCore {
     private final YggdrasilScheduler scheduler;
     private final YggdrasilStorage storage;
 
-    private final YggdrasilAuthManager authManager;
+    private YggdrasilAuthManager authManager;
 
     private final Map<Class<? extends YggdrasilGenericManager<?>>, YggdrasilGenericManager<?>> genericManagers;
-    private final Map<String, YggdrasilQueue<?>> queueMap;
+    private final Map<String, Queue<?>> queueMap;
 
     private final Logger logger = LoggerFactory.getLogger(YggdrasilCore.class);
 
     private boolean isRunning = true;
     private boolean isReadyForShutDown = false;
+
+    public static YggdrasilCore INSTANCE;
 
     public YggdrasilCore(CommandLineUtils.CommandLine args) throws IOException {
         String configFile = args.getKeywordArgs().getOrDefault("config", "yggdrasil.ini");
@@ -69,9 +71,12 @@ public class YggdrasilCore {
         events = new YggdrasilEventSystem();
         scheduler = new YggdrasilScheduler();
         storage = new YggdrasilStorage();
+    }
 
+
+    public void setUpManagers() {
         registerManager(YggdrasilAuthBackendManager.class);
-        authManager = new YggdrasilAuthManager(this);
+        authManager = new YggdrasilAuthManager();
 
         registerManager(YggdrasilPluginManager.class);
         registerManager(YggdrasilNotificationManager.class);
@@ -162,7 +167,7 @@ public class YggdrasilCore {
     }
 
     private void registerShutdownHook() {
-        Runtime.getRuntime().addShutdownHook(new Thread(new YggdrasilShutdownHook(this)));
+        Runtime.getRuntime().addShutdownHook(new Thread(new YggdrasilShutdownHook()));
     }
 
     public YggdrasilConfig getConfig() {
@@ -222,7 +227,7 @@ public class YggdrasilCore {
         try {
             YggdrasilGenericManager<?> managerInstance = manager.newInstance();
             genericManagers.put(manager, managerInstance);
-            managerInstance.setUpManager(this);
+            managerInstance.setUpManager();
         } catch (InstantiationException | IllegalAccessException e) {
             logger.error("Unable to instantiate manager", e);
         }
@@ -246,13 +251,13 @@ public class YggdrasilCore {
     public <T> boolean createQueue(Class<T> queueType, String queueName) {
         if (!queueMap.containsKey(queueName)) {
             logger.info("Creating queue: [{}] {}", queueType.getSimpleName(), queueName);
-            queueMap.put(queueName, new YggdrasilQueue<T>());
+            queueMap.put(queueName, new Queue<T>());
             return true;
         }
         return false;
     }
 
-    public YggdrasilQueue<?> getQueue(String queueName) {
+    public Queue<?> getQueue(String queueName) {
         return queueMap.getOrDefault(queueName, null);
     }
 
@@ -265,8 +270,8 @@ public class YggdrasilCore {
             "yggdrasil %s", Joiner.on(" ").join(args)
         ));
 
-        YggdrasilCore service = new YggdrasilCore(command);
-
-        service.mainLoop();
+        YggdrasilCore.INSTANCE = new YggdrasilCore(command);
+        YggdrasilCore.INSTANCE.setUpManagers();
+        YggdrasilCore.INSTANCE.mainLoop();
     }
 }

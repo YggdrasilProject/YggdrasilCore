@@ -19,7 +19,6 @@ public class YggdrasilNotificationManager extends YggdrasilGenericManager<Yggdra
         logger.info("Notification provider discovered: {}", discoveredObject.getSimpleName());
         try {
             YggdrasilNotificationProvider providerInstance = discoveredObject.newInstance();
-            providerInstance.setUp(core);
             managedObjects.put(discoveredObject, providerInstance);
         } catch (InstantiationException | IllegalAccessException e) {
             logger.error("Unable to instantiate notification provider", e);

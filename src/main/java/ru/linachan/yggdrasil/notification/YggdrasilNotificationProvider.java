@@ -4,16 +4,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.linachan.yggdrasil.YggdrasilCore;
 
-public abstract class YggdrasilNotificationProvider {
+public interface YggdrasilNotificationProvider {
 
-    protected YggdrasilCore core;
+    YggdrasilCore core = YggdrasilCore.INSTANCE;
+    Logger logger = LoggerFactory.getLogger(YggdrasilNotificationProvider.class);
 
-    protected static Logger logger = LoggerFactory.getLogger(YggdrasilNotificationProvider.class);
-
-    public void setUp(YggdrasilCore yggdrasilCore) {
-        core = yggdrasilCore;
-    }
-
-    public abstract void sendNotification(YggdrasilNotification notification);
+    void sendNotification(YggdrasilNotification notification);
 
 }

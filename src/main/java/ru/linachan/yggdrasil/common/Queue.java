@@ -1,9 +1,9 @@
-package ru.linachan.yggdrasil.queue;
+package ru.linachan.yggdrasil.common;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class YggdrasilQueue<T> {
+public class Queue<T> {
 
     private List<T> objectQueue = new ArrayList<>();
 

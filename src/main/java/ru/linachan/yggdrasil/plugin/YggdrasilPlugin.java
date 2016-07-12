@@ -4,23 +4,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.linachan.yggdrasil.YggdrasilCore;
 
-public abstract class YggdrasilPlugin {
+public interface YggdrasilPlugin {
 
-    protected YggdrasilCore core;
+    YggdrasilCore core = YggdrasilCore.INSTANCE;
+    Logger logger = LoggerFactory.getLogger(YggdrasilPlugin.class);
 
-    protected static Logger logger = LoggerFactory.getLogger(YggdrasilPlugin.class);
+    void onInit();
+    void onShutdown();
 
-    public void onPluginInit(YggdrasilCore core) {
-        this.core = core;
-        onInit();
-    }
-
-    protected abstract void onInit();
-
-    protected abstract void onShutdown();
-
-    public void shutdown() {
-        onShutdown();
-        logger.info(this.getClass().getSimpleName() + " is ready for shutdown");
-    }
 }

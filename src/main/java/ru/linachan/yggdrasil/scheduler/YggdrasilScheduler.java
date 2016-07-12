@@ -26,19 +26,19 @@ public class YggdrasilScheduler {
         if (!taskMap.containsKey(task.getTaskName())) {
             if (task.isPeriodic()) {
                 taskHandle = executorService.scheduleAtFixedRate(
-                        task.getRunnableTask(),
-                        task.getInitialDelay(),
-                        task.getExecutionPeriod(),
-                        task.getTimeUnit()
+                    task.getRunnableTask(),
+                    task.getInitialDelay(),
+                    task.getExecutionPeriod(),
+                    task.getTimeUnit()
                 );
                 task.setTaskHandle(taskHandle);
                 taskMap.put(task.getTaskName(), task);
                 logger.info("Periodic task '" + task.getTaskName() + "' scheduled with delay: " + task.getInitialDelay());
             } else {
                 taskHandle = executorService.schedule(
-                        task.getRunnableTask(),
-                        task.getInitialDelay(),
-                        task.getTimeUnit()
+                    task.getRunnableTask(),
+                    task.getInitialDelay(),
+                    task.getTimeUnit()
                 );
                 task.setTaskHandle(taskHandle);
                 taskMap.put(task.getTaskName(), task);

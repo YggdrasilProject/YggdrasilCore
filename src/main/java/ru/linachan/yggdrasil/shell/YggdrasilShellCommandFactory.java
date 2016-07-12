@@ -11,13 +11,9 @@ import ru.linachan.yggdrasil.shell.commands.UnknownCommand;
 
 public class YggdrasilShellCommandFactory implements CommandFactory {
 
-    private YggdrasilCore core;
-
     private YggdrasilShellCommandManager commandManager;
-    private static Logger logger = LoggerFactory.getLogger(YggdrasilShellCommandFactory.class);
 
-    public YggdrasilShellCommandFactory(YggdrasilCore yggdrasilCore, YggdrasilShellCommandManager yggdrasilShellCommandManager) {
-        core = yggdrasilCore;
+    public YggdrasilShellCommandFactory(YggdrasilShellCommandManager yggdrasilShellCommandManager) {
         commandManager = yggdrasilShellCommandManager;
     }
 
@@ -28,7 +24,7 @@ public class YggdrasilShellCommandFactory implements CommandFactory {
         CommandLineUtils.CommandLine command = CommandLineUtils.parse(commandLine);
 
         targetCommand = routeCommand(command.getCmd());
-        targetCommand.setUpCommand(core, commandManager, command);
+        targetCommand.setUpCommand(commandManager, command);
 
         return targetCommand;
     }

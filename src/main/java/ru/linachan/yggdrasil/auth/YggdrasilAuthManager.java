@@ -9,18 +9,12 @@ import java.util.List;
 
 public class YggdrasilAuthManager {
 
-    private YggdrasilCore core;
+    private YggdrasilCore core = YggdrasilCore.INSTANCE;
     private Class<? extends YggdrasilAuthBackend> authBackend;
 
     private static Logger logger = LoggerFactory.getLogger(YggdrasilAuthManager.class);
 
-    public YggdrasilAuthManager(YggdrasilCore yggdrasilCore) {
-        core = yggdrasilCore;
-
-        setAuthBackend();
-    }
-
-    private void setAuthBackend() {
+    public YggdrasilAuthManager() {
         String backendClass = core.getConfig().getString(
             "yggdrasil.auth.backend", "ru.linachan.yggdrasil.auth.backend.LocalAuthBackend"
         );

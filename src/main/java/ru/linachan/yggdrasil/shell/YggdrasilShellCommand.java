@@ -20,7 +20,7 @@ import java.util.Map;
 
 public abstract class YggdrasilShellCommand implements Command, Runnable, InterruptHandler {
 
-    protected YggdrasilCore core;
+    protected static YggdrasilCore core = YggdrasilCore.INSTANCE;
 
     protected InputStream input;
     protected OutputStream output;
@@ -48,13 +48,7 @@ public abstract class YggdrasilShellCommand implements Command, Runnable, Interr
 
     protected static Logger logger = LoggerFactory.getLogger(YggdrasilShellCommand.class);
 
-    public void setUpCommand(
-        YggdrasilCore yggdrasilCore,
-        YggdrasilShellCommandManager cmdManager,
-        CommandLineUtils.CommandLine commandObject
-    ) {
-        core = yggdrasilCore;
-
+    public void setUpCommand(YggdrasilShellCommandManager cmdManager, CommandLineUtils.CommandLine commandObject) {
         args = commandObject.getArgs();
         kwargs = commandObject.getKeywordArgs();
         command = commandObject.getCmd();

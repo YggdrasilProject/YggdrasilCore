@@ -26,7 +26,7 @@ public class YggdrasilShellService extends YggdrasilService {
     @SuppressWarnings("unchecked")
     protected void onInit() {
         YggdrasilShellCommandManager commandManager = new YggdrasilShellCommandManager();
-        commandManager.setUpManager(core);
+        commandManager.setUpManager();
 
         shellServer = SshServer.setUpDefaultServer();
 
@@ -100,8 +100,8 @@ public class YggdrasilShellService extends YggdrasilService {
 
         shellServer.setTcpipForwardingFilter(RejectAllForwardingFilter.INSTANCE);
 
-        shellServer.setCommandFactory(new YggdrasilShellCommandFactory(core, commandManager));
-        shellServer.setShellFactory(new YggdrasilShellFactory(core, commandManager));
+        shellServer.setCommandFactory(new YggdrasilShellCommandFactory(commandManager));
+        shellServer.setShellFactory(new YggdrasilShellFactory(commandManager));
 
         try {
             shellServer.start();

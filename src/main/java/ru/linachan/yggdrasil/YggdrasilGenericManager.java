@@ -11,15 +11,13 @@ import java.util.concurrent.Semaphore;
 @SuppressWarnings("unchecked")
 public abstract class YggdrasilGenericManager<T> {
 
-    protected YggdrasilCore core;
+    protected YggdrasilCore core = YggdrasilCore.INSTANCE;
     protected Map<Class<? extends T>, T> managedObjects = new HashMap<>();
     private Semaphore writeLock = new Semaphore(1);
 
     protected static Logger logger = LoggerFactory.getLogger(YggdrasilGenericManager.class);
 
-    public void setUpManager(YggdrasilCore yggdrasilCore) {
-        core = yggdrasilCore;
-
+    public void setUpManager() {
         onInit();
 
         core.getEventSystem().registerListener(event -> {

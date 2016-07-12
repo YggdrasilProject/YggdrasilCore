@@ -19,7 +19,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 @Plugin(name = "RPC", description = "Provides ability to launch RPC services")
-public class RPCPlugin extends YggdrasilPlugin implements RPCCallback {
+public class RPCPlugin implements RPCCallback, YggdrasilPlugin {
 
     private ConnectionFactory rpcConnectionFactory;
     private List<Connection> rpcConnectionList;
@@ -37,7 +37,7 @@ public class RPCPlugin extends YggdrasilPlugin implements RPCCallback {
 
     @Override
     @SuppressWarnings("unchecked")
-    protected void onInit() {
+    public void onInit() {
         rpcConnectionFactory = new ConnectionFactory();
         rpcConnectionList = new ArrayList<>();
 
@@ -90,7 +90,7 @@ public class RPCPlugin extends YggdrasilPlugin implements RPCCallback {
         rpcServer.start();
         rpcClient.start();
 
-        core.getScheduler().scheduleTask(new YggdrasilTask("nodeHeartBeat", new YggdrasilRunnable(core) {
+        core.getScheduler().scheduleTask(new YggdrasilTask("nodeHeartBeat", new YggdrasilRunnable() {
             @Override
             public void run() {
                 try {
@@ -109,7 +109,7 @@ public class RPCPlugin extends YggdrasilPlugin implements RPCCallback {
             public void onCancel() {}
         }, 1, 15, TimeUnit.SECONDS));
 
-        core.getScheduler().scheduleTask(new YggdrasilTask("nodeMonitor", new YggdrasilRunnable(core) {
+        core.getScheduler().scheduleTask(new YggdrasilTask("nodeMonitor", new YggdrasilRunnable() {
             @Override
             public void run() {
                 nodes.stream()
@@ -127,7 +127,7 @@ public class RPCPlugin extends YggdrasilPlugin implements RPCCallback {
     }
 
     @Override
-    protected void onShutdown() {
+    public void onShutdown() {
         rpcConnectionList.stream()
             .collect(Collectors.toList()).stream()
             .filter(ShutdownNotifier::isOpen)

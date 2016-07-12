@@ -5,11 +5,7 @@ import org.slf4j.LoggerFactory;
 
 class YggdrasilShutdownHook implements Runnable {
 
-    private YggdrasilCore core;
-
-    public YggdrasilShutdownHook(YggdrasilCore core) {
-        this.core = core;
-    }
+    private YggdrasilCore core = YggdrasilCore.INSTANCE;
 
     private static Logger logger = LoggerFactory.getLogger(YggdrasilShutdownHook.class);
 

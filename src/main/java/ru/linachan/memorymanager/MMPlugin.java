@@ -5,29 +5,27 @@ import com.sun.jna.Native;
 import com.sun.jna.platform.win32.*;
 import ru.linachan.yggdrasil.common.SystemInfo;
 import ru.linachan.yggdrasil.plugin.YggdrasilPlugin;
-import ru.linachan.yggdrasil.plugin.helpers.AutoStart;
 import ru.linachan.yggdrasil.plugin.helpers.OSSupport;
 import ru.linachan.yggdrasil.plugin.helpers.Plugin;
 
 import java.util.ArrayList;
 import java.util.List;
 
-
 @OSSupport(SystemInfo.OSType.WINDOWS)
 @Plugin(name = "MemoryManager", description = "Provides ability to manage process memory")
-public class MMPlugin extends YggdrasilPlugin {
+public class MMPlugin implements YggdrasilPlugin {
 
     static Kernel32 kernel32 = Kernel32.INSTANCE;
 
     private MMProcess attachedProcess = null;
 
     @Override
-    protected void onInit() {
+    public void onInit() {
 
     }
 
     @Override
-    protected void onShutdown() {
+    public void onShutdown() {
 
     }
 

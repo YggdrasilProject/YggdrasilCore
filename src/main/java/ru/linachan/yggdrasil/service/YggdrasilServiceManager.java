@@ -48,7 +48,7 @@ public class YggdrasilServiceManager extends YggdrasilGenericManager<YggdrasilSe
     private void startService(Class<? extends YggdrasilService> service) {
         try {
             YggdrasilService serviceInstance = service.newInstance();
-            serviceInstance.onServiceInit(core);
+            serviceInstance.onServiceInit();
             Thread serviceThread = new Thread(serviceInstance);
             serviceInstance.setServiceThread(serviceThread);
             managedObjects.put(service, serviceInstance);

@@ -6,14 +6,13 @@ import ru.linachan.yggdrasil.YggdrasilCore;
 
 public abstract class YggdrasilService implements Runnable {
 
-    protected YggdrasilCore core;
+    protected static YggdrasilCore core = YggdrasilCore.INSTANCE;
     private Thread serviceThread;
     protected Boolean isRunning;
 
     protected static Logger logger = LoggerFactory.getLogger(YggdrasilService.class);
 
-    public void onServiceInit(YggdrasilCore core) {
-        this.core = core;
+    public void onServiceInit() {
         isRunning = true;
         onInit();
     }

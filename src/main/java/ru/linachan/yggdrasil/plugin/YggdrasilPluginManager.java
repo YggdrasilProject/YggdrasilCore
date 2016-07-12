@@ -41,7 +41,7 @@ public class YggdrasilPluginManager extends YggdrasilGenericManager<YggdrasilPlu
             if (checkDependencies(enabledObject)) {
                 try {
                     YggdrasilPlugin pluginInstance = enabledObject.newInstance();
-                    pluginInstance.onPluginInit(core);
+                    pluginInstance.onInit();
                     put(enabledObject, pluginInstance);
 
                     logger.info("Plugin enabled: {}", getPluginInfo(enabledObject).name());
@@ -99,7 +99,7 @@ public class YggdrasilPluginManager extends YggdrasilGenericManager<YggdrasilPlu
 
     @Override
     protected void onDisable(Class<? extends YggdrasilPlugin> disabledObject) {
-        get(disabledObject).shutdown();
+        get(disabledObject).onShutdown();
         put(disabledObject, null);
     }
 
@@ -137,7 +137,7 @@ public class YggdrasilPluginManager extends YggdrasilGenericManager<YggdrasilPlu
     public void shutdown() {
         managedObjects.values().stream()
             .filter(plugin -> plugin != null)
-            .forEach(YggdrasilPlugin::shutdown);
+            .forEach(YggdrasilPlugin::onShutdown);
     }
 
     private void autoStart() {

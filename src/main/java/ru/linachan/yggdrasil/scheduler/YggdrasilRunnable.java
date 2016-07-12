@@ -4,17 +4,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.linachan.yggdrasil.YggdrasilCore;
 
-public abstract class YggdrasilRunnable implements Runnable {
+public interface YggdrasilRunnable extends Runnable {
 
-    protected YggdrasilCore core;
+    YggdrasilCore core = YggdrasilCore.INSTANCE;
+    Logger logger = LoggerFactory.getLogger(YggdrasilRunnable.class);
 
-    protected static Logger logger = LoggerFactory.getLogger(YggdrasilRunnable.class);
-
-    public YggdrasilRunnable(YggdrasilCore core) {
-        this.core = core;
-    }
-
-    public abstract void run();
-
-    public abstract void onCancel();
+    void run();
+    void onCancel();
 }

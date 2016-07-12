@@ -23,7 +23,7 @@ public class YggdrasilAuthBackendManager extends YggdrasilGenericManager<Yggdras
     protected void onEnable(Class<? extends YggdrasilAuthBackend> enabledObject) {
         try {
             YggdrasilAuthBackend backendInstance = enabledObject.newInstance();
-            backendInstance.setUpBackend(core);
+            backendInstance.onBackendInit();
             managedObjects.put(enabledObject, backendInstance);
         } catch (InstantiationException | IllegalAccessException e) {
             logger.error("Unable to instantiate auth backend: {}", e.getMessage());

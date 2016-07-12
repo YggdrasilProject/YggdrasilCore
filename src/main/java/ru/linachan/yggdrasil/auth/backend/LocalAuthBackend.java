@@ -8,18 +8,17 @@ import ru.linachan.yggdrasil.storage.YggdrasilStorageFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class LocalAuthBackend extends YggdrasilAuthBackend {
+public class LocalAuthBackend implements YggdrasilAuthBackend {
 
     private YggdrasilStorageFile authData;
 
     private static Logger logger = LoggerFactory.getLogger(LocalAuthBackend.class);
 
     @Override
-    protected void onBackendInit() {
+    public void onBackendInit() {
         try {
             authData = core.getStorage().createStorage(
                 "authStorage", new File("authData.yds"), "Yggdrasil".getBytes(), false
@@ -30,7 +29,7 @@ public class LocalAuthBackend extends YggdrasilAuthBackend {
     }
 
     @Override
-    protected YggdrasilAuthUser registerUser(String userName) {
+    public YggdrasilAuthUser registerUser(String userName) {
         if (authData == null)
             return null;
 
@@ -50,7 +49,7 @@ public class LocalAuthBackend extends YggdrasilAuthBackend {
     }
 
     @Override
-    protected YggdrasilAuthUser getUser(String userName) {
+    public YggdrasilAuthUser getUser(String userName) {
         if (authData == null)
             return null;
 
@@ -69,7 +68,7 @@ public class LocalAuthBackend extends YggdrasilAuthBackend {
     }
 
     @Override
-    protected boolean updateUser(YggdrasilAuthUser user) {
+    public boolean updateUser(YggdrasilAuthUser user) {
         if (authData == null)
             return false;
 
@@ -86,7 +85,7 @@ public class LocalAuthBackend extends YggdrasilAuthBackend {
     }
 
     @Override
-    protected List<YggdrasilAuthUser> listUsers() {
+    public List<YggdrasilAuthUser> listUsers() {
         return authData.listKeys().stream().map(userName -> {
             YggdrasilAuthUser userData = null;
             try {
