@@ -78,6 +78,23 @@ public class PluginCommand extends YggdrasilShellCommand {
         }
     }
 
+    @CommandAction("Restart given plugins")
+    public void restart() throws IOException {
+        if (args.size() > 0) {
+            args.stream()
+                .forEach(pluginName -> pluginManager.list().keySet().stream()
+                    .filter(plugin -> pluginManager.getPluginInfo(plugin).name().equals(pluginName))
+                    .forEach(plugin -> {
+                        pluginManager.disable(plugin);
+                        pluginManager.enable(plugin);
+                    })
+                );
+        } else {
+            console.writeLine("No plugins specified");
+            exit(1);
+        }
+    }
+
     @Override
     protected void onInterrupt() {}
 }
