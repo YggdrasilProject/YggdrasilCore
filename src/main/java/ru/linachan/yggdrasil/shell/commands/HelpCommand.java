@@ -1,5 +1,6 @@
 package ru.linachan.yggdrasil.shell.commands;
 
+import ru.linachan.yggdrasil.common.console.tables.Table;
 import ru.linachan.yggdrasil.shell.YggdrasilShellCommand;
 import ru.linachan.yggdrasil.shell.helpers.ShellCommand;
 
@@ -14,16 +15,16 @@ public class HelpCommand extends YggdrasilShellCommand {
     protected void init() throws IOException {}
 
     public void execute() throws IOException {
-        Map<String, String> commandHelp = new HashMap<>();
+        Table commandHelp = new Table("Command", "Description");
 
         commandManager.list().keySet().stream()
             .filter(command -> command.isAnnotationPresent(ShellCommand.class))
             .forEach(command -> {
                 ShellCommand commandInfo = command.getAnnotation(ShellCommand.class);
-                commandHelp.put(commandInfo.command(), commandInfo.description());
+                commandHelp.addRow(commandInfo.command(), commandInfo.description());
             });
 
-        console.writeMap(commandHelp, "Command", "Description");
+        console.writeTable(commandHelp);
     }
 
     @Override

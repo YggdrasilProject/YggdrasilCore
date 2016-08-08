@@ -52,7 +52,7 @@ public class UserProfileCommand extends YggdrasilShellCommand {
             .filter(attribute -> !attribute.equals("passWord"))
             .forEach(attribute -> userAttributes.put(attribute, String.valueOf(authUser.getAttribute(attribute))));
 
-        console.writeMap(userAttributes, "Attribute", "Value");
+        console.writeTable(new Table(userAttributes, "Attribute", "Value"));
     }
 
     @CommandAction("Add user")

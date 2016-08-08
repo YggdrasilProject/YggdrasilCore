@@ -1,5 +1,6 @@
 package ru.linachan.yggdrasil.shell.commands;
 
+import ru.linachan.yggdrasil.common.console.tables.Table;
 import ru.linachan.yggdrasil.shell.YggdrasilShellCommand;
 import ru.linachan.yggdrasil.shell.helpers.ShellCommand;
 
@@ -14,7 +15,7 @@ public class GetEnvCommand extends YggdrasilShellCommand {
     protected void init() throws IOException {}
 
     public void execute() throws IOException {
-        console.writeMap(getEnvironment().getEnv(), "variable", "value");
+        console.writeTable(new Table(getEnvironment().getEnv(), "variable", "value"));
     }
 
     @Override
