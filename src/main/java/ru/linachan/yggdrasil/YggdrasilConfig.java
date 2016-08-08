@@ -85,6 +85,10 @@ public class YggdrasilConfig {
         return Boolean.parseBoolean(getString(key, String.valueOf(defaultValue)));
     }
 
+    public File getFile(String key, String defaultValue) {
+        return new File(getString(key, defaultValue));
+    }
+
     public <T> List<T> getList(String key, Class<T> valueType) {
         List<T> result = new ArrayList<>();
         String configValue = getString(key, null);

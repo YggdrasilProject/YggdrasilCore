@@ -1,5 +1,6 @@
 package ru.linachan.rpc;
 
+import ru.linachan.yggdrasil.common.console.tables.Table;
 import ru.linachan.yggdrasil.plugin.YggdrasilPluginManager;
 import ru.linachan.yggdrasil.shell.YggdrasilShellCommand;
 import ru.linachan.yggdrasil.shell.helpers.CommandAction;
@@ -51,31 +52,20 @@ public class RPCCommand extends YggdrasilShellCommand implements RPCCallback {
 
     @CommandAction("Show cluster status")
     public void status() throws IOException {
-        List<Map<String, String>> hosts = new ArrayList<>();
+        Table hosts = new Table("uuid", "type", "last_seen", "os_name", "os_arch", "os_version");
+
         for (RPCNode node : core.getManager(YggdrasilPluginManager.class).get(RPCPlugin.class).listNodes()) {
-            Map<String, String> host = new HashMap<>();
-
-            host.put("uuid", node.getNodeUUID().toString());
-            host.put("type", node.getNodeType());
-            host.put("last_seen", String.format("%0,3f", node.getLastSeen() / 1000.0));
-
-            host.put("os_name", (String) node.getNodeInfo("osName", null));
-            host.put("os_arch", (String) node.getNodeInfo("osArch", null));
-            host.put("os_version", (String) node.getNodeInfo("osVersion", null));
-
-            hosts.add(host);
+            hosts.addRow(
+                node.getNodeUUID().toString(),
+                node.getNodeType(),
+                String.format("%0,3f", node.getLastSeen() / 1000.0),
+                (String) node.getNodeInfo("osName", ""),
+                (String) node.getNodeInfo("osArch", ""),
+                (String) node.getNodeInfo("osVersion", "")
+            );
         }
 
-        List<String> hostFields = new ArrayList<>();
-
-        hostFields.add("uuid");
-        hostFields.add("type");
-        hostFields.add("last_seen");
-        hostFields.add("os_name");
-        hostFields.add("os_arch");
-        hostFields.add("os_version");
-
-        console.writeTable(hosts, hostFields);
+        console.writeTable(hosts);
     }
 
     @Override

@@ -9,6 +9,7 @@ import ru.linachan.yggdrasil.YggdrasilCore;
 import ru.linachan.yggdrasil.common.console.CommandLineUtils;
 import ru.linachan.yggdrasil.common.console.ConsoleUtils;
 import ru.linachan.yggdrasil.common.console.InterruptHandler;
+import ru.linachan.yggdrasil.common.console.tables.Table;
 import ru.linachan.yggdrasil.shell.helpers.CommandAction;
 
 import java.io.*;
@@ -169,13 +170,13 @@ public abstract class YggdrasilShellCommand implements Command, Runnable, Interr
 
                 handler.invoke(this);
             } catch (NoSuchMethodException e) {
-                Map<String, String> commandMethods = new HashMap<>();
+                Table commandMethods = new Table("Action", "Description");
                 for (Method method: getClass().getDeclaredMethods()) {
                     if (method.isAnnotationPresent(CommandAction.class)) {
-                        commandMethods.put(method.getName(), method.getAnnotation(CommandAction.class).value());
+                        commandMethods.addRow(method.getName(), method.getAnnotation(CommandAction.class).value());
                     }
                 }
-                console.writeMap(commandMethods, "Action", "Description");
+                console.writeTable(commandMethods);
             } catch (IllegalAccessException | InvocationTargetException e) {
                 console.writeLine("Unable to execute command: %s", e.getMessage());
             }

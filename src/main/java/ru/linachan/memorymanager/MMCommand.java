@@ -1,6 +1,7 @@
 package ru.linachan.memorymanager;
 
 import ru.linachan.memorymanager.utils.MMUtils;
+import ru.linachan.yggdrasil.common.console.tables.Table;
 import ru.linachan.yggdrasil.plugin.YggdrasilPluginManager;
 import ru.linachan.yggdrasil.shell.YggdrasilShellCommand;
 import ru.linachan.yggdrasil.shell.helpers.CommandAction;
@@ -32,7 +33,7 @@ public class MMCommand extends YggdrasilShellCommand {
             processList = MMUtils.processListToMap(mmEngine.getAllProcesses());
         }
 
-        console.writeMap(processList, "PID", "Process Name");
+        console.writeTable(new Table(processList, "PID", "Process Name"));
     }
 
     @CommandAction("Attach to process")
@@ -60,7 +61,9 @@ public class MMCommand extends YggdrasilShellCommand {
 
             if (processes.size() > 1) {
                 console.writeLine("Multiple processes found. Provide --pid instead.");
-                console.writeMap(MMUtils.processListToMap(processes), "PID", "Process Name");
+                console.writeTable(new Table(
+                    MMUtils.processListToMap(processes), "PID", "Process Name"
+                ));
             } else if (processes.size() == 1) {
                 if (mmEngine.isAttached()) {
                     if (!console.readYesNo(String.format("MMPlugin is already attached to '%s'. Do you want to detach it?", mmEngine.getAttachedProcess().getProcessName()))) {
@@ -129,54 +132,54 @@ public class MMCommand extends YggdrasilShellCommand {
                 .getMemoryReader();
 
             if (value != null) {
-                Map<String, String> searchMap = new HashMap<>();
+                Table searchResults = new Table("Address", "Value");
 
                 switch (type) {
                     case "string":
                         memoryReader.findString(value, bytesPerChar).stream()
-                            .forEach(result -> searchMap.put(
+                            .forEach(result -> searchResults.addRow(
                                 String.format("%08X", result),
                                 memoryReader.readString(result, bytesPerChar))
                             );
                         break;
                     case "byte":
                         memoryReader.findByte(Byte.parseByte(value)).stream()
-                            .forEach(result -> searchMap.put(
+                            .forEach(result -> searchResults.addRow(
                                 String.format("%08X", result),
                                 String.valueOf(memoryReader.readByte(result))
                             ));
                         break;
                     case "short":
                         memoryReader.findShort(Short.parseShort(value)).stream()
-                            .forEach(result -> searchMap.put(
+                            .forEach(result -> searchResults.addRow(
                                 String.format("%08X", result),
                                 String.valueOf(memoryReader.readShort(result))
                             ));
                         break;
                     case "int":
                         memoryReader.findInt(Integer.parseInt(value)).stream()
-                            .forEach(result -> searchMap.put(
+                            .forEach(result -> searchResults.addRow(
                                 String.format("%08X", result),
                                 String.valueOf(memoryReader.readInt(result))
                             ));
                         break;
                     case "long":
                         memoryReader.findLong(Long.parseLong(value)).stream()
-                            .forEach(result -> searchMap.put(
+                            .forEach(result -> searchResults.addRow(
                                 String.format("%08X", result),
                                 String.valueOf(memoryReader.readLong(result))
                             ));
                         break;
                     case "float":
                         memoryReader.findFloat(Float.parseFloat(value)).stream()
-                            .forEach(result -> searchMap.put(
+                            .forEach(result -> searchResults.addRow(
                                 String.format("%08X", result),
                                 String.valueOf(memoryReader.readFloat(result))
                             ));
                         break;
                     case "double":
                         memoryReader.findDouble(Double.parseDouble(value)).stream()
-                            .forEach(result -> searchMap.put(
+                            .forEach(result -> searchResults.addRow(
                                 String.format("%08X", result),
                                 String.valueOf(memoryReader.readDouble(result))
                             ));
@@ -186,7 +189,7 @@ public class MMCommand extends YggdrasilShellCommand {
                         break;
                 }
 
-                console.writeMap(searchMap, "Address", "Value");
+                console.writeTable(searchResults);
             } else {
                 console.writeLine("No pattern provided");
             }

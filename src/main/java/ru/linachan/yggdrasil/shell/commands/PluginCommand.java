@@ -1,6 +1,7 @@
 package ru.linachan.yggdrasil.shell.commands;
 
 import com.google.common.base.Joiner;
+import ru.linachan.yggdrasil.common.console.tables.Table;
 import ru.linachan.yggdrasil.plugin.YggdrasilPlugin;
 import ru.linachan.yggdrasil.plugin.YggdrasilPluginManager;
 import ru.linachan.yggdrasil.shell.YggdrasilShellCommand;
@@ -25,29 +26,21 @@ public class PluginCommand extends YggdrasilShellCommand {
 
     @CommandAction("List available plugins")
     public void list() throws IOException {
-        Map<Class<? extends YggdrasilPlugin>, Boolean> plugins = pluginManager.list();
-        List<Map<String, String>> pluginsInfo = new ArrayList<>();
+        Map<Class<? extends YggdrasilPlugin>, Boolean> pluginList = pluginManager.list();
+        Table plugins = new Table("name", "enabled", "description", "dependencies");
 
-        for (Class<? extends YggdrasilPlugin> plugin : plugins.keySet()) {
-            boolean isEnabled = plugins.get(plugin);
+        for (Class<? extends YggdrasilPlugin> plugin : pluginList.keySet()) {
+            boolean isEnabled = pluginList.get(plugin);
 
-            Map<String, String> pluginInfo = new HashMap<>();
-
-            pluginInfo.put("name", pluginManager.getPluginInfo(plugin).name());
-            pluginInfo.put("enabled", String.valueOf(isEnabled));
-            pluginInfo.put("description", pluginManager.getPluginInfo(plugin).description());
-            pluginInfo.put("dependencies", Joiner.on(", ").join(pluginManager.getPluginDependencies(plugin)));
-
-            pluginsInfo.add(pluginInfo);
+            plugins.addRow(
+                pluginManager.getPluginInfo(plugin).name(),
+                String.valueOf(isEnabled),
+                pluginManager.getPluginInfo(plugin).description(),
+                Joiner.on(", ").join(pluginManager.getPluginDependencies(plugin))
+            );
         }
 
-        List<String> pluginsFields = new ArrayList<>();
-        pluginsFields.add("name");
-        pluginsFields.add("enabled");
-        pluginsFields.add("description");
-        pluginsFields.add("dependencies");
-
-        console.writeTable(pluginsInfo, pluginsFields);
+        console.writeTable(plugins);
     }
 
     @CommandAction("Enable given plugins")

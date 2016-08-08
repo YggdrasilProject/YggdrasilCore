@@ -6,6 +6,7 @@ import ru.linachan.yggdrasil.common.SSHUtils;
 import ru.linachan.yggdrasil.common.console.ANSIUtils;
 import ru.linachan.yggdrasil.common.console.ConsoleColor;
 import ru.linachan.yggdrasil.common.console.ConsoleTextStyle;
+import ru.linachan.yggdrasil.common.console.tables.Table;
 import ru.linachan.yggdrasil.shell.YggdrasilShellCommand;
 import ru.linachan.yggdrasil.shell.helpers.CommandAction;
 import ru.linachan.yggdrasil.shell.helpers.ShellCommand;
@@ -29,12 +30,13 @@ public class UserProfileCommand extends YggdrasilShellCommand {
     @CommandAction("List users")
     public void list() throws IOException {
         List<YggdrasilAuthUser> userList = authManager.listUsers();
-        console.writeList(
+        Table users = new Table(
             userList.stream()
                 .map(YggdrasilAuthUser::getUserName)
                 .collect(Collectors.toList()),
             "Users"
         );
+        console.writeTable(users);
     }
 
     @CommandAction("Show user profile")

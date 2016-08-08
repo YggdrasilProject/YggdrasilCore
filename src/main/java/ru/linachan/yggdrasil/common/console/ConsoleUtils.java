@@ -2,10 +2,10 @@ package ru.linachan.yggdrasil.common.console;
 
 import com.google.common.base.Joiner;
 import org.apache.commons.lang.ArrayUtils;
+import ru.linachan.yggdrasil.common.console.tables.Table;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
@@ -251,7 +251,7 @@ public class ConsoleUtils {
         }
     }
 
-    private String generateBorder(List<Integer> fields) {
+    private String generateBorder(Integer[] fields) {
         List<String> borders = new ArrayList<>();
 
         for (Integer field: fields) {
@@ -265,79 +265,71 @@ public class ConsoleUtils {
         return "+" + Joiner.on("+").join(borders) + "+";
     }
 
+    /**
+     * @deprecated use {@link #writeTable(Table)}} instead.
+     */
+    @Deprecated
     public void writeMap(Map<?, ?> mapObject) throws IOException {
         writeMap(mapObject, null, null);
     }
 
+    /**
+     * @deprecated use {@link #writeTable(Table)}} instead.
+     */
+    @Deprecated
     public void writeMap(Map<?, ?> mapObject, String keyHeader, String valueHeader) throws IOException {
-        final int[] maxKeyLength = { (keyHeader != null) ? keyHeader.length() : 0 };
-        final int[] maxValueLength = { (valueHeader != null) ? valueHeader.length() : 0 };
+        Table mapTable = new Table(mapObject, keyHeader, valueHeader);
 
-        if (mapObject != null) {
-            mapObject.keySet().stream()
-                .filter(key -> key != null)
-                .filter(key -> String.valueOf(key).length() > maxKeyLength[0])
-                .forEach(key -> maxKeyLength[0] = String.valueOf(key).length());
+        writeTable(mapTable);
+    }
 
-            mapObject.values().stream()
-                .filter(value -> value != null)
-                .filter(value -> String.valueOf(value).length() > maxValueLength[0])
-                .forEach(value -> maxValueLength[0] = String.valueOf(value).length());
+    /**
+     * @deprecated use {@link #writeTable(Table)}} instead.
+     */
+    @Deprecated
+    public void writeList(List<String> list, String header) throws IOException {
+        Table listTable = new Table(list, header);
 
-            List<Integer> fields = new ArrayList<>();
+        writeTable(listTable);
+    }
 
-            fields.add(maxKeyLength[0]);
-            fields.add(maxValueLength[0]);
+    public void writeTable(Table table) throws IOException {
+        if (table != null) {
+            Integer[] fieldSize = table.getFieldSize();
+            String[][] rows = table.asArray();
 
-            String formatString = String.format("| %%-%ds | %%-%ds |", maxKeyLength[0], maxValueLength[0]);
-            String borderString = generateBorder(fields);
+            String formatString = "| %-" + Joiner.on("s | %-").join(fieldSize) + "s |";
+            String borderString = generateBorder(fieldSize);
 
             writeLine(borderString);
+            writeLine(formatString, (Object[]) rows[0]);
+            writeLine(borderString);
 
-            if ((keyHeader != null) && (valueHeader != null)) {
-                writeLine(formatString, keyHeader, valueHeader);
-                writeLine(borderString);
-            }
-
-            for (Object key: mapObject.keySet()) {
-                writeLine(formatString, key, mapObject.get(key));
+            for (int i = 1; i < rows.length; i++) {
+                writeLine(formatString, (Object[]) rows[i]);
             }
 
             writeLine(borderString);
         }
     }
 
-    public void writeTable(List<Map<String, String>> table, List<String> headers) throws IOException {
-        if ((table != null)&&(headers != null)) {
-            Map<String, Integer> fieldMap = new HashMap<>();
-            headers.stream().forEach(header -> {
-                fieldMap.put(header, header.length());
-                table.stream()
-                    .filter(row -> row.containsKey(header))
-                    .filter(row -> String.valueOf(row.get(header)).length() > fieldMap.get(header))
-                    .forEach(row -> fieldMap.replace(header, String.valueOf(row.get(header)).length()));
-            });
+    public void writeException(Throwable exc) throws IOException {
+        writeLine("Traceback (most recent call last):");
 
-            List<Integer> fields = new ArrayList<>();
-            headers.stream().forEach(header -> fields.add(fieldMap.get(header)));
+        StackTraceElement[] stackTrace = exc.getStackTrace();
+        ArrayUtils.reverse(stackTrace);
 
-            String formatString = "| %-" + Joiner.on("s | %-").join(fields) + "s |";
-            String borderString = generateBorder(fields);
-
-            writeLine(borderString);
-            writeLine(formatString, headers.toArray());
-            writeLine(borderString);
-
-            for(Map<String, String> row: table) {
-                List<String> rowData = new ArrayList<>();
-                headers.stream().forEach(header -> rowData.add(row.getOrDefault(header, "")));
-                writeLine(formatString, rowData.toArray());
-            }
-
-            writeLine(borderString);
+        for (StackTraceElement st: stackTrace) {
+            writeLine(
+                    "  File \"%s\", line %d. in %s",
+                    st.getFileName().replace(".java", ".py"),
+                    st.getLineNumber(),
+                    st.getMethodName()
+            );
+            writeLine("    source code is hidden");
         }
+        writeLine("%s: %s", exc.getClass().getSimpleName(), exc.getMessage());
     }
-
 
     public void writeLine(String format, Object... args) throws IOException {
         write(format + "\r\n", args);
@@ -379,44 +371,5 @@ public class ConsoleUtils {
         outputStreamWriter.write(buffer);
         outputStreamWriter.flush();
         unlock();
-    }
-
-    public void writeList(List<String> list, String header) throws IOException {
-        final int[] maxLength = {header.length()};
-        list.stream().forEach(row -> maxLength[0] = (row.length() > maxLength[0]) ? row.length() : maxLength[0]);
-
-        List<Integer> fields = new ArrayList<>();
-        fields.add(maxLength[0]);
-
-        String formatString = String.format("| %%-%ds |", maxLength[0]);
-        String borderString = generateBorder(fields);
-
-        writeLine(borderString);
-        writeLine(formatString, header);
-        writeLine(borderString);
-
-        for(String row: list) {
-            writeLine(formatString, row);
-        }
-
-        writeLine(borderString);
-    }
-
-    public void writeException(Throwable exc) throws IOException {
-        writeLine("Traceback (most recent call last):");
-
-        StackTraceElement[] stackTrace = exc.getStackTrace();
-        ArrayUtils.reverse(stackTrace);
-
-        for (StackTraceElement st: stackTrace) {
-            writeLine(
-                "  File \"%s\", line %d. in %s",
-                st.getFileName().replace(".java", ".py"),
-                st.getLineNumber(),
-                st.getMethodName()
-            );
-            writeLine("    source code is hidden");
-        }
-        writeLine("%s: %s", exc.getClass().getSimpleName(), exc.getMessage());
     }
 }
