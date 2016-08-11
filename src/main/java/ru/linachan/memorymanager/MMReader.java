@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 public class MMReader {
 
-    private MMProcess process;
+    private final MMProcess process;
 
     public MMReader(MMProcess process) {
         this.process = process;

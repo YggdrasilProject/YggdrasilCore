@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Queue<T> {
 
-    private List<T> objectQueue = new ArrayList<>();
+    private final List<T> objectQueue = new ArrayList<>();
 
     public synchronized T pop() {
         T object = null;

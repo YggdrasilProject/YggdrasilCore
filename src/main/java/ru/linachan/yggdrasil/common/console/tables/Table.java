@@ -7,7 +7,7 @@ import java.util.Map;
 public class Table {
 
     private final String[] header;
-    private List<String[]> rows = new ArrayList<>();
+    private final List<String[]> rows = new ArrayList<>();
 
     public Table(String... columns) {
         header = columns;

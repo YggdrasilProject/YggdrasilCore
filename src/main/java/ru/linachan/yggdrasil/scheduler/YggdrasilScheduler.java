@@ -11,11 +11,11 @@ import java.util.concurrent.ScheduledFuture;
 
 public class YggdrasilScheduler {
 
-    private Map<String, YggdrasilTask> taskMap = new HashMap<>();
+    private final Map<String, YggdrasilTask> taskMap = new HashMap<>();
 
-    private ScheduledExecutorService executorService;
+    private final ScheduledExecutorService executorService;
 
-    private static Logger logger = LoggerFactory.getLogger(YggdrasilScheduler.class);
+    private static final Logger logger = LoggerFactory.getLogger(YggdrasilScheduler.class);
 
     public YggdrasilScheduler() {
         executorService = Executors.newScheduledThreadPool(10);

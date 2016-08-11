@@ -10,21 +10,21 @@ import java.util.*;
 
 public class RPCServer implements Runnable {
 
-    private Connection connection;
+    private final Connection connection;
     private Channel channel;
     private QueueingConsumer consumer;
 
     private UUID queue;
 
-    private List<String[]> bounds = new ArrayList<>();
+    private final List<String[]> bounds = new ArrayList<>();
 
-    private Map<String, RPCHandler> handlers = new HashMap<>();
+    private final Map<String, RPCHandler> handlers = new HashMap<>();
     private RPCHandler handler;
 
     private Thread serverThread;
     private boolean isRunning = true;
 
-    private static Logger logger = LoggerFactory.getLogger(RPCServer.class);
+    private static final Logger logger = LoggerFactory.getLogger(RPCServer.class);
 
     public RPCServer(Connection rpcConnection) throws IOException {
         connection = rpcConnection;

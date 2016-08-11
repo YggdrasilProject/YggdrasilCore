@@ -13,16 +13,16 @@ import java.util.stream.Collectors;
 
 public class RPCClient implements Runnable {
 
-    private Connection connection;
+    private final Connection connection;
     private Channel channel;
     private String replyQueueName;
     private QueueingConsumer consumer;
     private Boolean isRunning = true;
 
-    private Map<String, RPCCallback> callbackMap = new HashMap<>();
-    private Map<String, Long> callbackTimeOut = new HashMap<>();
+    private final Map<String, RPCCallback> callbackMap = new HashMap<>();
+    private final Map<String, Long> callbackTimeOut = new HashMap<>();
 
-    private static Logger logger = LoggerFactory.getLogger(RPCClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(RPCClient.class);
 
     public RPCClient(Connection rpcConnection) throws IOException {
         connection = rpcConnection;
@@ -34,7 +34,7 @@ public class RPCClient implements Runnable {
         channel.basicConsume(replyQueueName, true, consumer);
     }
 
-    public void call(String exchange, String key, String message, RPCCallback callback) throws IOException, InterruptedException {
+    public void call(String exchange, String key, String message, RPCCallback callback) throws IOException {
         String corrId = UUID.randomUUID().toString();
 
         AMQP.BasicProperties props = new AMQP.BasicProperties
@@ -71,12 +71,11 @@ public class RPCClient implements Runnable {
             }
 
             callbackTimeOut.keySet().stream()
-                .filter(corrId -> System.currentTimeMillis() - callbackTimeOut.get(corrId) > 60000)
-                .collect(Collectors.toList()).stream()
-                .forEach(corrId -> {
-                    callbackMap.remove(corrId);
-                    callbackTimeOut.remove(corrId);
-                });
+                    .filter(corrId -> System.currentTimeMillis() - callbackTimeOut.get(corrId) > 60000)
+                    .collect(Collectors.toList()).forEach(corrId -> {
+                callbackMap.remove(corrId);
+                callbackTimeOut.remove(corrId);
+            });
         }
     }
 

@@ -90,7 +90,7 @@ public class MMUtils {
     public static Map<Integer, String> processListToMap(List<MMProcess> processList) {
         Map<Integer, String> processMap = new HashMap<>();
 
-        processList.stream().forEach(process -> processMap.put(process.getProcessID(), process.getProcessName()));
+        processList.forEach(process -> processMap.put(process.getProcessID(), process.getProcessName()));
 
         return processMap;
     }

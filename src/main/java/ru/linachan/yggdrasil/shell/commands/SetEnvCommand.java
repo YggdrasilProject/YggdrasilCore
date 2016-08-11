@@ -4,8 +4,6 @@ import ru.linachan.yggdrasil.shell.YggdrasilShellCommand;
 import ru.linachan.yggdrasil.shell.helpers.ShellCommand;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 
 @ShellCommand(command = "setenv", description = "Set environment variables")
 public class SetEnvCommand extends YggdrasilShellCommand {

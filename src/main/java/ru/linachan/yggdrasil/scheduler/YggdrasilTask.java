@@ -5,8 +5,8 @@ import java.util.concurrent.TimeUnit;
 
 public class YggdrasilTask {
 
-    private String taskName;
-    private YggdrasilRunnable runnableTask;
+    private final String taskName;
+    private final YggdrasilRunnable runnableTask;
     private Integer initialDelay = 0;
 
     private Boolean isPeriodic = false;

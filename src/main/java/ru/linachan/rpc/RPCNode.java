@@ -6,11 +6,11 @@ import java.util.UUID;
 
 public class RPCNode {
 
-    private UUID nodeUUID;
-    private String nodeType;
+    private final UUID nodeUUID;
+    private final String nodeType;
     private Long lastSeen;
 
-    private JSONObject nodeInfo;
+    private final JSONObject nodeInfo;
 
     private final Long EXPIRATION_TIME = 60000L;
 

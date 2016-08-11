@@ -11,11 +11,11 @@ import java.util.concurrent.Semaphore;
 @SuppressWarnings("unchecked")
 public abstract class YggdrasilGenericManager<T> {
 
-    protected YggdrasilCore core = YggdrasilCore.INSTANCE;
-    protected Map<Class<? extends T>, T> managedObjects = new HashMap<>();
-    private Semaphore writeLock = new Semaphore(1);
+    protected final YggdrasilCore core = YggdrasilCore.INSTANCE;
+    protected final Map<Class<? extends T>, T> managedObjects = new HashMap<>();
+    private final Semaphore writeLock = new Semaphore(1);
 
-    protected static Logger logger = LoggerFactory.getLogger(YggdrasilGenericManager.class);
+    protected static final Logger logger = LoggerFactory.getLogger(YggdrasilGenericManager.class);
 
     public void setUpManager() {
         onInit();
@@ -79,9 +79,7 @@ public abstract class YggdrasilGenericManager<T> {
             });
 
         lock();
-        for (Class<? extends T> objectToRemove: objectsToRemove) {
-            managedObjects.remove(objectToRemove);
-        }
+        objectsToRemove.forEach(managedObjects::remove);
         unLock();
     }
 

@@ -7,7 +7,7 @@ import ru.linachan.yggdrasil.YggdrasilGenericManager;
 
 public class YggdrasilNotificationManager extends YggdrasilGenericManager<YggdrasilNotificationProvider> {
 
-    private static Logger logger = LoggerFactory.getLogger(YggdrasilNotificationManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(YggdrasilNotificationManager.class);
 
     @Override
     protected void onInit() {

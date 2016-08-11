@@ -25,7 +25,7 @@ public class MMProcess {
 
     private WinNT.HANDLE processHandle;
 
-    static Kernel32 kernel32 = Kernel32.INSTANCE;
+    static final Kernel32 kernel32 = Kernel32.INSTANCE;
 
     public MMProcess(String processName, int processID) {
         this.processName = processName;

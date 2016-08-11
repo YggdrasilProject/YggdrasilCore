@@ -9,9 +9,6 @@ import ru.linachan.yggdrasil.shell.helpers.CommandAction;
 import ru.linachan.yggdrasil.shell.helpers.ShellCommand;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @ShellCommand(command = "plugin", description = "Manage installed plugins")
@@ -46,11 +43,10 @@ public class PluginCommand extends YggdrasilShellCommand {
     @CommandAction("Enable given plugins")
     public void enable() throws IOException {
         if (args.size() > 0) {
-            args.stream()
-                .forEach(pluginName -> pluginManager.list().keySet().stream()
+            args.forEach(pluginName -> pluginManager.list().keySet().stream()
                     .filter(plugin -> pluginManager.getPluginInfo(plugin).name().equals(pluginName))
                     .forEach(pluginManager::enable)
-                );
+            );
         } else {
             console.writeLine("No plugins specified");
             exit(1);
@@ -60,11 +56,10 @@ public class PluginCommand extends YggdrasilShellCommand {
     @CommandAction("Disable given plugins")
     public void disable() throws IOException {
         if (args.size() > 0) {
-            args.stream()
-                .forEach(pluginName -> pluginManager.list().keySet().stream()
+            args.forEach(pluginName -> pluginManager.list().keySet().stream()
                     .filter(plugin -> pluginManager.getPluginInfo(plugin).name().equals(pluginName))
                     .forEach(pluginManager::disable)
-                );
+            );
         } else {
             console.writeLine("No plugins specified");
             exit(1);
@@ -74,14 +69,13 @@ public class PluginCommand extends YggdrasilShellCommand {
     @CommandAction("Restart given plugins")
     public void restart() throws IOException {
         if (args.size() > 0) {
-            args.stream()
-                .forEach(pluginName -> pluginManager.list().keySet().stream()
+            args.forEach(pluginName -> pluginManager.list().keySet().stream()
                     .filter(plugin -> pluginManager.getPluginInfo(plugin).name().equals(pluginName))
                     .forEach(plugin -> {
                         pluginManager.disable(plugin);
                         pluginManager.enable(plugin);
                     })
-                );
+            );
         } else {
             console.writeLine("No plugins specified");
             exit(1);

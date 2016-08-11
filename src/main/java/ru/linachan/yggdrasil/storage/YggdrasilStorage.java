@@ -13,11 +13,11 @@ import java.util.zip.GZIPOutputStream;
 
 public class YggdrasilStorage {
 
-    private Map<String, YggdrasilStorageFile> storageInfo;
+    private final Map<String, YggdrasilStorageFile> storageInfo;
 
     private final byte[] MAGIC_HEADER = "YDSv1.0".getBytes();
 
-    private static Logger logger = LoggerFactory.getLogger(YggdrasilStorage.class);
+    private static final Logger logger = LoggerFactory.getLogger(YggdrasilStorage.class);
 
     public YggdrasilStorage() {
         storageInfo = new HashMap<>();

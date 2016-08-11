@@ -27,9 +27,9 @@ public class RPCPlugin implements RPCCallback, YggdrasilPlugin {
     private RPCServer rpcServer;
     private RPCClient rpcClient;
 
-    private List<RPCNode> nodes = new ArrayList<>();
+    private final List<RPCNode> nodes = new ArrayList<>();
 
-    private Logger logger = LoggerFactory.getLogger(RPCPlugin.class);
+    private final Logger logger = LoggerFactory.getLogger(RPCPlugin.class);
 
     private final UUID NODE_UUID = UUID.randomUUID();
     public static final String RPC_EXCHANGE = "yggdrasil";
@@ -80,9 +80,7 @@ public class RPCPlugin implements RPCCallback, YggdrasilPlugin {
                 response.setData("nodeInfo", nodeInfo);
             });
 
-            rpcServer.setHandler("shutdown", (request, response) -> {
-                core.shutdown();
-            });
+            rpcServer.setHandler("shutdown", (request, response) -> core.shutdown());
         } catch (IOException | TimeoutException e) {
             logger.error("Unable to initialize cluster: {}", e.getMessage());
         }
@@ -100,7 +98,7 @@ public class RPCPlugin implements RPCCallback, YggdrasilPlugin {
                     rpcClient.call(RPC_EXCHANGE, "discover", discoveryRequest.toJSON(), core.getManager(
                         YggdrasilPluginManager.class
                     ).get(RPCPlugin.class));
-                } catch (IOException | InterruptedException e) {
+                } catch (IOException e) {
                     logger.error("Unable to perform RPC rpcCall: {}", e.getMessage());
                 }
             }
@@ -114,7 +112,7 @@ public class RPCPlugin implements RPCCallback, YggdrasilPlugin {
             public void run() {
                 nodes.stream()
                     .filter(RPCNode::isExpired)
-                    .collect(Collectors.toList()).stream()
+                    .collect(Collectors.toList())
                     .forEach(node -> {
                         nodes.remove(node);
                         logger.info("Node disconnected: {}", node.getNodeUUID().toString());

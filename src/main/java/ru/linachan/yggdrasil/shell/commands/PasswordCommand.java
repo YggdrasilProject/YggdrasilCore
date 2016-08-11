@@ -1,17 +1,12 @@
 package ru.linachan.yggdrasil.shell.commands;
 
 import ru.linachan.yggdrasil.auth.YggdrasilAuthUser;
-import ru.linachan.yggdrasil.common.console.ConsoleColor;
-import ru.linachan.yggdrasil.common.console.ConsoleUtils;
-import ru.linachan.yggdrasil.common.console.InterruptHandler;
 import ru.linachan.yggdrasil.shell.YggdrasilShellCommand;
 import ru.linachan.yggdrasil.shell.helpers.ShellCommand;
 
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
-import java.util.Map;
 
 @ShellCommand(command = "passwd", description = "Change current user password")
 public class PasswordCommand extends YggdrasilShellCommand {

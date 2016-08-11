@@ -15,7 +15,7 @@ public class LocalAuthBackend implements YggdrasilAuthBackend {
 
     private YggdrasilStorageFile authData;
 
-    private static Logger logger = LoggerFactory.getLogger(LocalAuthBackend.class);
+    private static final Logger logger = LoggerFactory.getLogger(LocalAuthBackend.class);
 
     @Override
     public void onBackendInit() {

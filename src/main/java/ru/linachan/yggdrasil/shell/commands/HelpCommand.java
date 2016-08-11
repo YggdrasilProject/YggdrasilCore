@@ -5,8 +5,6 @@ import ru.linachan.yggdrasil.shell.YggdrasilShellCommand;
 import ru.linachan.yggdrasil.shell.helpers.ShellCommand;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 @ShellCommand(command = "help", description = "Print available commands with description")
 public class HelpCommand extends YggdrasilShellCommand {

@@ -3,7 +3,6 @@ package ru.linachan.yggdrasil.shell;
 import ru.linachan.yggdrasil.YggdrasilGenericManager;
 import ru.linachan.yggdrasil.shell.helpers.ShellCommand;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 

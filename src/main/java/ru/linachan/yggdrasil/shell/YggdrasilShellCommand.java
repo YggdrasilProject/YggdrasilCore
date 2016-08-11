@@ -15,13 +15,12 @@ import ru.linachan.yggdrasil.shell.helpers.CommandAction;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public abstract class YggdrasilShellCommand implements Command, Runnable, InterruptHandler {
 
-    protected static YggdrasilCore core = YggdrasilCore.INSTANCE;
+    protected static final YggdrasilCore core = YggdrasilCore.INSTANCE;
 
     protected InputStream input;
     protected OutputStream output;
@@ -47,7 +46,7 @@ public abstract class YggdrasilShellCommand implements Command, Runnable, Interr
 
     protected YggdrasilShellCommandManager commandManager;
 
-    protected static Logger logger = LoggerFactory.getLogger(YggdrasilShellCommand.class);
+    protected static final Logger logger = LoggerFactory.getLogger(YggdrasilShellCommand.class);
 
     public void setUpCommand(YggdrasilShellCommandManager cmdManager, CommandLineUtils.CommandLine commandObject) {
         args = commandObject.getArgs();

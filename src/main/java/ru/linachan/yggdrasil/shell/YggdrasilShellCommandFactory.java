@@ -2,16 +2,13 @@ package ru.linachan.yggdrasil.shell;
 
 import org.apache.sshd.server.Command;
 import org.apache.sshd.server.CommandFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import ru.linachan.yggdrasil.YggdrasilCore;
 import ru.linachan.yggdrasil.common.console.CommandLineUtils;
 import ru.linachan.yggdrasil.shell.commands.InvalidCommand;
 import ru.linachan.yggdrasil.shell.commands.UnknownCommand;
 
 public class YggdrasilShellCommandFactory implements CommandFactory {
 
-    private YggdrasilShellCommandManager commandManager;
+    private final YggdrasilShellCommandManager commandManager;
 
     public YggdrasilShellCommandFactory(YggdrasilShellCommandManager yggdrasilShellCommandManager) {
         commandManager = yggdrasilShellCommandManager;

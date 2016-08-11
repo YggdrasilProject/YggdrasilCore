@@ -3,8 +3,6 @@ package ru.linachan.yggdrasil.shell.commands;
 import ru.linachan.yggdrasil.shell.YggdrasilShellCommand;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 
 public class UnknownCommand extends YggdrasilShellCommand {
 

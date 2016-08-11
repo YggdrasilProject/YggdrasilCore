@@ -10,8 +10,8 @@ import java.util.*;
 
 public class YggdrasilAuthUser implements Serializable {
 
-    private String userName;
-    private Map<String, Object> attributes;
+    private final String userName;
+    private final Map<String, Object> attributes;
     public static final long serialVersionUID = 1L;
 
     public YggdrasilAuthUser(String authUserName) {

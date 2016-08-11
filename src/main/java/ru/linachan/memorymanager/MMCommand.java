@@ -8,7 +8,6 @@ import ru.linachan.yggdrasil.shell.helpers.CommandAction;
 import ru.linachan.yggdrasil.shell.helpers.ShellCommand;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -136,53 +135,46 @@ public class MMCommand extends YggdrasilShellCommand {
 
                 switch (type) {
                     case "string":
-                        memoryReader.findString(value, bytesPerChar).stream()
-                            .forEach(result -> searchResults.addRow(
+                        memoryReader.findString(value, bytesPerChar).forEach(result -> searchResults.addRow(
                                 String.format("%08X", result),
                                 memoryReader.readString(result, bytesPerChar))
-                            );
+                        );
                         break;
                     case "byte":
-                        memoryReader.findByte(Byte.parseByte(value)).stream()
-                            .forEach(result -> searchResults.addRow(
+                        memoryReader.findByte(Byte.parseByte(value)).forEach(result -> searchResults.addRow(
                                 String.format("%08X", result),
                                 String.valueOf(memoryReader.readByte(result))
-                            ));
+                        ));
                         break;
                     case "short":
-                        memoryReader.findShort(Short.parseShort(value)).stream()
-                            .forEach(result -> searchResults.addRow(
+                        memoryReader.findShort(Short.parseShort(value)).forEach(result -> searchResults.addRow(
                                 String.format("%08X", result),
                                 String.valueOf(memoryReader.readShort(result))
-                            ));
+                        ));
                         break;
                     case "int":
-                        memoryReader.findInt(Integer.parseInt(value)).stream()
-                            .forEach(result -> searchResults.addRow(
+                        memoryReader.findInt(Integer.parseInt(value)).forEach(result -> searchResults.addRow(
                                 String.format("%08X", result),
                                 String.valueOf(memoryReader.readInt(result))
-                            ));
+                        ));
                         break;
                     case "long":
-                        memoryReader.findLong(Long.parseLong(value)).stream()
-                            .forEach(result -> searchResults.addRow(
+                        memoryReader.findLong(Long.parseLong(value)).forEach(result -> searchResults.addRow(
                                 String.format("%08X", result),
                                 String.valueOf(memoryReader.readLong(result))
-                            ));
+                        ));
                         break;
                     case "float":
-                        memoryReader.findFloat(Float.parseFloat(value)).stream()
-                            .forEach(result -> searchResults.addRow(
+                        memoryReader.findFloat(Float.parseFloat(value)).forEach(result -> searchResults.addRow(
                                 String.format("%08X", result),
                                 String.valueOf(memoryReader.readFloat(result))
-                            ));
+                        ));
                         break;
                     case "double":
-                        memoryReader.findDouble(Double.parseDouble(value)).stream()
-                            .forEach(result -> searchResults.addRow(
+                        memoryReader.findDouble(Double.parseDouble(value)).forEach(result -> searchResults.addRow(
                                 String.format("%08X", result),
                                 String.valueOf(memoryReader.readDouble(result))
-                            ));
+                        ));
                         break;
                     default:
                         console.writeLine("Unknown type: '%s'", type);

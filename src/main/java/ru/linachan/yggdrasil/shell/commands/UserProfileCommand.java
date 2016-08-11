@@ -2,7 +2,6 @@ package ru.linachan.yggdrasil.shell.commands;
 
 import ru.linachan.yggdrasil.auth.YggdrasilAuthManager;
 import ru.linachan.yggdrasil.auth.YggdrasilAuthUser;
-import ru.linachan.yggdrasil.common.SSHUtils;
 import ru.linachan.yggdrasil.common.console.ANSIUtils;
 import ru.linachan.yggdrasil.common.console.ConsoleColor;
 import ru.linachan.yggdrasil.common.console.ConsoleTextStyle;
@@ -13,7 +12,6 @@ import ru.linachan.yggdrasil.shell.helpers.ShellCommand;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.security.PublicKey;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -77,7 +75,7 @@ public class UserProfileCommand extends YggdrasilShellCommand {
     }
 
     @CommandAction("Delete SSH public key")
-    public void delete_key() throws IOException {
+    public void delete_key() {
         if (args.size() > 0) {
             YggdrasilAuthUser authUser = core.getAuthManager().getUser(getEnvironment().getEnv().get("USER"));
             authUser.deletePublicKey(Integer.parseInt(args.get(0)));

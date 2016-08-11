@@ -12,7 +12,7 @@ public class IPv4Network {
     private Long networkAddress;
     private Integer netMaskBits;
 
-    private Random randomGenerator = new Random();
+    private final Random randomGenerator = new Random();
 
     private final Pattern NET_DEFINITION_PATTERN = Pattern.compile(
         "^(?<address>([01]?\\d?\\d|2[0-4]\\d|25[0-5])\\.([01]?\\d?\\d|2[0-4]\\d|25[0-5])\\.([01]?\\d?\\d|2[0-4]\\d|25[0-5])\\.([01]?\\d?\\d|2[0-4]\\d|25[0-5]))/(?<cidr>(3[0-2]|[0-2]?\\d))$"

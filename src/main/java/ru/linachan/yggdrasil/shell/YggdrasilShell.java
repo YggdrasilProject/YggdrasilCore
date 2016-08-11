@@ -16,7 +16,7 @@ import java.io.*;
 public class YggdrasilShell implements Command, Runnable, ExitCallback, InterruptHandler {
 
     private static YggdrasilCore core = YggdrasilCore.INSTANCE;
-    private YggdrasilShellCommandManager commandManager;
+    private final YggdrasilShellCommandManager commandManager;
 
     private InputStream input;
     private OutputStream output;
@@ -34,7 +34,7 @@ public class YggdrasilShell implements Command, Runnable, ExitCallback, Interrup
     private boolean subCommandIsRunning = false;
     private Integer subCommandExitCode = 0;
 
-    private static Logger logger = LoggerFactory.getLogger(YggdrasilShell.class);
+    private static final Logger logger = LoggerFactory.getLogger(YggdrasilShell.class);
 
     public YggdrasilShell(YggdrasilShellCommandManager yggdrasilShellCommandManager) {
         commandManager = yggdrasilShellCommandManager;

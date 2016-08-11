@@ -4,8 +4,8 @@ import java.util.Map;
 
 public class YggdrasilEvent {
 
-    private String eventType;
-    private Map<String, Object> eventData;
+    private final String eventType;
+    private final Map<String, Object> eventData;
 
     public YggdrasilEvent(String type, Map<String, Object> data) {
         eventType = type;

@@ -13,8 +13,8 @@ import java.util.regex.Pattern;
 
 public class YggdrasilConfig {
 
-    private Map<String, String> configData;
-    private static Logger logger = LoggerFactory.getLogger(YggdrasilConfig.class);
+    private final Map<String, String> configData;
+    private static final Logger logger = LoggerFactory.getLogger(YggdrasilConfig.class);
 
     private static final Pattern sectionPattern = Pattern.compile(
         "^\\s*\\[(?<section>[^\\]]+)\\]\\s*$"

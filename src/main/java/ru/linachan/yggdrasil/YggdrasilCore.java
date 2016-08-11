@@ -28,7 +28,7 @@ import ru.linachan.yggdrasil.storage.YggdrasilStorage;
 
 public class YggdrasilCore {
 
-    private List<String> enabledPackages = new ArrayList<>();
+    private final List<String> enabledPackages = new ArrayList<>();
     private Reflections discoveryHelper;
 
     private final YggdrasilConfig config;
@@ -182,8 +182,7 @@ public class YggdrasilCore {
         logger.info("Yggdrasil main loop finished. Waiting another services to finish...");
 
         genericManagers.values().stream()
-            .collect(Collectors.toList()).stream()
-            .forEach(YggdrasilGenericManager::shutdown);
+                .collect(Collectors.toList()).forEach(YggdrasilGenericManager::shutdown);
 
         storage.shutdown();
         scheduler.shutdown();

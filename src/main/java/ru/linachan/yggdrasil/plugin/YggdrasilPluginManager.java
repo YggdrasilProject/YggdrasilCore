@@ -12,8 +12,8 @@ import java.util.List;
 
 public class YggdrasilPluginManager extends YggdrasilGenericManager<YggdrasilPlugin> {
 
-    private static Logger logger = LoggerFactory.getLogger(YggdrasilPluginManager.class);
-    private List<Class<? extends YggdrasilPlugin>> autoStartQueue = new ArrayList<>();
+    private static final Logger logger = LoggerFactory.getLogger(YggdrasilPluginManager.class);
+    private final List<Class<? extends YggdrasilPlugin>> autoStartQueue = new ArrayList<>();
 
     @Override
     protected void onInit() {

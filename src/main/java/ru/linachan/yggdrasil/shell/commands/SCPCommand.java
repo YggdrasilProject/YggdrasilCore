@@ -1,17 +1,12 @@
 package ru.linachan.yggdrasil.shell.commands;
 
 import ru.linachan.yggdrasil.auth.YggdrasilAuthUser;
-import ru.linachan.yggdrasil.common.SSHUtils;
 import ru.linachan.yggdrasil.shell.YggdrasilShellCommand;
 import ru.linachan.yggdrasil.shell.helpers.ShellCommand;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.security.PublicKey;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
 
 @ShellCommand(command = "scp", description = "Copy files over SSH")
 public class SCPCommand extends YggdrasilShellCommand {

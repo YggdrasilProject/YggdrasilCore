@@ -15,7 +15,7 @@ import java.util.List;
 @Plugin(name = "MemoryManager", description = "Provides ability to manage process memory")
 public class MMPlugin implements YggdrasilPlugin {
 
-    static Kernel32 kernel32 = Kernel32.INSTANCE;
+    static final Kernel32 kernel32 = Kernel32.INSTANCE;
 
     private MMProcess attachedProcess = null;
 

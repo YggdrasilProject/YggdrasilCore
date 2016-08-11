@@ -9,10 +9,10 @@ import java.util.List;
 
 public class YggdrasilAuthManager {
 
-    private YggdrasilCore core = YggdrasilCore.INSTANCE;
+    private final YggdrasilCore core = YggdrasilCore.INSTANCE;
     private Class<? extends YggdrasilAuthBackend> authBackend;
 
-    private static Logger logger = LoggerFactory.getLogger(YggdrasilAuthManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(YggdrasilAuthManager.class);
 
     public YggdrasilAuthManager() {
         String backendClass = core.getConfig().getString(

@@ -13,21 +13,21 @@ import java.util.stream.Collectors;
 
 public class ConsoleUtils {
 
-    private InputStream inputStream;
-    private OutputStream outputStream;
-    private OutputStream errorStream;
+    private final InputStream inputStream;
+    private final OutputStream outputStream;
+    private final OutputStream errorStream;
 
-    private InputStreamReader inputStreamReader;
-    private OutputStreamWriter outputStreamWriter;
-    private OutputStreamWriter errorStreamWriter;
+    private final InputStreamReader inputStreamReader;
+    private final OutputStreamWriter outputStreamWriter;
+    private final OutputStreamWriter errorStreamWriter;
 
     private InterruptHandler interruptHandler;
 
     private final Semaphore writeLock = new Semaphore(1);
 
-    private List<String> autoCompleteList = new ArrayList<>();
+    private final List<String> autoCompleteList = new ArrayList<>();
 
-    private List<String> commandHistory = new ArrayList<>();
+    private final List<String> commandHistory = new ArrayList<>();
     private Integer commandHistoryID = -1;
     private String lastCommand = null;
 
@@ -270,6 +270,7 @@ public class ConsoleUtils {
      */
     @Deprecated
     public void writeMap(Map<?, ?> mapObject) throws IOException {
+        //noinspection deprecation
         writeMap(mapObject, null, null);
     }
 

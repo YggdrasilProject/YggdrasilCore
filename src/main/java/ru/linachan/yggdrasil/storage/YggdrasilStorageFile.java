@@ -9,9 +9,9 @@ import java.util.zip.GZIPOutputStream;
 
 public class YggdrasilStorageFile {
 
-    private Map<String, byte[]> storageMap;
-    private Semaphore storageLock;
-    private File storageFile;
+    private final Map<String, byte[]> storageMap;
+    private final Semaphore storageLock;
+    private final File storageFile;
 
     private byte[] storageKey;
 

@@ -5,7 +5,7 @@ import java.util.List;
 
 public class YggdrasilEventSystem {
 
-    private List<YggdrasilEventListener> eventListeners;
+    private final List<YggdrasilEventListener> eventListeners;
 
     public YggdrasilEventSystem() {
         eventListeners = new ArrayList<>();
