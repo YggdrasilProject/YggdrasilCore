@@ -86,6 +86,15 @@ public class YggdrasilCore {
         registerShutdownHook();
     }
 
+    public void reloadPlugins() {
+        loadPlugins();
+
+        discoveryHelper = new Reflections(
+            ClasspathHelper.forPackage("ru.linachan"),
+            new SubTypesScanner()
+        );
+    }
+
     private void loadPlugins() {
         String pluginFolderPath = config.getString("yggdrasil.plugins.path", "plugins");
         File pluginFolder = new File(pluginFolderPath);

@@ -1,6 +1,7 @@
 package ru.linachan.yggdrasil.shell.commands;
 
 import com.google.common.base.Joiner;
+import ru.linachan.yggdrasil.YggdrasilCore;
 import ru.linachan.yggdrasil.common.console.tables.Table;
 import ru.linachan.yggdrasil.plugin.YggdrasilPlugin;
 import ru.linachan.yggdrasil.plugin.YggdrasilPluginManager;
@@ -80,6 +81,11 @@ public class PluginCommand extends YggdrasilShellCommand {
             console.writeLine("No plugins specified");
             exit(1);
         }
+    }
+
+    @CommandAction("Reload plugins from classpath")
+    public void reload() throws IOException {
+        YggdrasilCore.INSTANCE.reloadPlugins();
     }
 
     @Override
