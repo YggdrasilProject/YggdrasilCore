@@ -73,25 +73,19 @@
                 </configuration>
             </plugin>
             <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.1</version>
+                <configuration>
+                    <outputDirectory>
+                        ${project.build.directory}/lib
+                    </outputDirectory>
+                </configuration>
                 <executions>
                     <execution>
-                        <id>build-yggdrasil</id>
-                        <configuration>
-                            <appendAssemblyId>false</appendAssemblyId>
-                            <finalName>yggdrasil-core-${version}-full</finalName>
-                            <archive>
-                                <manifest>
-                                    <mainClass>ru.linachan.yggdrasil.YggdrasilCore</mainClass>
-                                </manifest>
-                            </archive>
-                            <descriptorRefs>
-                                <descriptorRef>jar-with-dependencies</descriptorRef>
-                            </descriptorRefs>
-                        </configuration>
                         <phase>package</phase>
                         <goals>
-                            <goal>single</goal>
+                            <goal>copy-dependencies</goal>
                         </goals>
                     </execution>
                 </executions>
