@@ -2,7 +2,12 @@ package ru.linachan.yggdrasil.service;
 
 import ru.linachan.yggdrasil.YggdrasilGenericManager;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public class YggdrasilServiceManager extends YggdrasilGenericManager<YggdrasilService> {
+
+    private static final ExecutorService threadPool = Executors.newWorkStealingPool();
 
     @Override
     protected void onInit() {
@@ -40,6 +45,7 @@ public class YggdrasilServiceManager extends YggdrasilGenericManager<YggdrasilSe
     }
 
     public void shutdown() {
+        threadPool.shutdown();
         for (Class<? extends YggdrasilService> service: managedObjects.keySet()) {
             stopService(service, false);
         }
@@ -48,11 +54,9 @@ public class YggdrasilServiceManager extends YggdrasilGenericManager<YggdrasilSe
     private void startService(Class<? extends YggdrasilService> service) {
         try {
             YggdrasilService serviceInstance = service.newInstance();
-            serviceInstance.onServiceInit();
-            Thread serviceThread = new Thread(serviceInstance);
-            serviceInstance.setServiceThread(serviceThread);
+            serviceInstance.onInit();
             managedObjects.put(service, serviceInstance);
-            serviceThread.start();
+            threadPool.submit(serviceInstance);
 
             logger.info("Service started: {}", service.getSimpleName());
         } catch (InstantiationException | IllegalAccessException e) {
@@ -62,11 +66,7 @@ public class YggdrasilServiceManager extends YggdrasilGenericManager<YggdrasilSe
 
     private void stopService(Class<? extends YggdrasilService> service, Boolean wait) {
         YggdrasilService serviceInstance = managedObjects.get(service);
-        try {
-            serviceInstance.stop(wait);
-            logger.info("Service stopped: {}", service.getSimpleName());
-        } catch (InterruptedException e) {
-            logger.error("Unable to stop service properly", e);
-        }
+        serviceInstance.onShutdown();
+        logger.info("Service stopped: {}", service.getSimpleName());
     }
 }

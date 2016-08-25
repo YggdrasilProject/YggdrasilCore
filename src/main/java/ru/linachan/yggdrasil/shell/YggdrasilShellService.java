@@ -18,13 +18,13 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
-public class YggdrasilShellService extends YggdrasilService {
+public class YggdrasilShellService implements YggdrasilService {
 
     private SshServer shellServer;
 
     @Override
     @SuppressWarnings("unchecked")
-    protected void onInit() {
+    public void onInit() {
         YggdrasilShellCommandManager commandManager = new YggdrasilShellCommandManager();
         commandManager.setUpManager();
 
@@ -111,7 +111,7 @@ public class YggdrasilShellService extends YggdrasilService {
     }
 
     @Override
-    protected void onShutdown() {
+    public void onShutdown() {
         try {
             shellServer.stop();
         } catch (IOException e) {
@@ -120,7 +120,5 @@ public class YggdrasilShellService extends YggdrasilService {
     }
 
     @Override
-    public void run() {
-        // do nothing, service already working
-    }
+    public void run() {}
 }
