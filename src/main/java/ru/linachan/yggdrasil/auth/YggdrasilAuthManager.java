@@ -51,4 +51,8 @@ public class YggdrasilAuthManager {
     public List<YggdrasilAuthUser> listUsers() {
         return core.getManager(YggdrasilAuthBackendManager.class).get(authBackend).listUsers();
     }
+
+    public boolean deleteUser(YggdrasilAuthUser user) {
+        return core.getManager(YggdrasilAuthBackendManager.class).get(authBackend).deleteUser(user);
+    }
 }

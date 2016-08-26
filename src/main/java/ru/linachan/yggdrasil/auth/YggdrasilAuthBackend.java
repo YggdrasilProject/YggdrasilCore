@@ -13,5 +13,6 @@ public interface YggdrasilAuthBackend {
     YggdrasilAuthUser getUser(String userName);
     boolean updateUser(YggdrasilAuthUser user);
     List<YggdrasilAuthUser> listUsers();
+    boolean deleteUser(YggdrasilAuthUser user);
     void shutdown();
 }
