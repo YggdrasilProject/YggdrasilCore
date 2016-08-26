@@ -98,6 +98,24 @@ public class LocalAuthBackend implements YggdrasilAuthBackend {
     }
 
     @Override
+    public boolean deleteUser(YggdrasilAuthUser user) {
+        if (authData == null)
+            return false;
+
+        if (!authData.hasKey(user.getUserName()))
+            return false;
+
+        try {
+            authData.deleteKey(user.getUserName());
+            authData.writeStorage();
+            return true;
+        } catch (InterruptedException | IOException e) {
+            logger.error("Unable to delete user: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    @Override
     public void shutdown() {
         try {
             authData.writeStorage();

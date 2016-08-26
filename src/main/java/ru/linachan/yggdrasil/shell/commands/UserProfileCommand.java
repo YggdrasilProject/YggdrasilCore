@@ -12,6 +12,8 @@ import ru.linachan.yggdrasil.shell.helpers.ShellCommand;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -54,13 +56,64 @@ public class UserProfileCommand extends YggdrasilShellCommand {
     }
 
     @CommandAction("Add user")
-    public void add() throws IOException {
-        console.writeLine(ANSIUtils.RenderString("Not implemented", ConsoleColor.BRIGHT_RED, ConsoleTextStyle.BOLD));
+    public void add() throws IOException, NoSuchAlgorithmException {
+        String userName = (args.size() > 0) ? args.get(0) : null;
+
+        if (userName != null) {
+            YggdrasilAuthUser user = core.getAuthManager().getUser(userName);
+
+            if (user != null) {
+                console.writeLine("User %s already exists!", userName);
+                exit(1);
+            } else {
+                boolean passwordSet = false;
+                user = core.getAuthManager().registerUser(userName);
+
+                while (!passwordSet) {
+                    String password = console.readPassword("Enter password: ");
+                    String passwordConfirmation = console.readPassword("Confirm password: ");
+
+                    if (password.equals(passwordConfirmation)) {
+                        MessageDigest md = MessageDigest.getInstance("SHA-256");
+                        md.update(password.getBytes("UTF-8"));
+                        byte[] digest = md.digest();
+
+                        user.setAttribute("passWord", String.format("%064x", new java.math.BigInteger(1, digest)));
+                        core.getAuthManager().updateUser(user);
+
+                        console.writeLine("User created");
+
+                        passwordSet = true;
+                    } else {
+                        console.writeLine("Password mismatch");
+                    }
+                }
+            }
+        } else {
+            console.writeLine("Username not specified");
+            exit(1);
+        }
     }
 
     @CommandAction("Delete user")
     public void delete() throws IOException {
-        console.writeLine(ANSIUtils.RenderString("Not implemented", ConsoleColor.BRIGHT_RED, ConsoleTextStyle.BOLD));
+        String userName = (args.size() > 0) ? args.get(0) : null;
+
+        if (userName != null) {
+            YggdrasilAuthUser user = core.getAuthManager().getUser(userName);
+
+            if (user != null) {
+                if (console.readYesNo("Do you really want to delete this user?")) {
+                    core.getAuthManager().deleteUser(user);
+                }
+            } else {
+                console.writeLine("User %s doesn't exists!", userName);
+                exit(1);
+            }
+        } else {
+            console.writeLine("Username not specified");
+            exit(1);
+        }
     }
 
     @CommandAction("Set SSH public key")
